@@ -17,22 +17,24 @@
  */
 package implementation;
 
-import Parametres.BoiteNoire;
-import Parametres.EnvoyeurAgree;
-import Parametres.InitialiserParams;
+import execution.TraiterCourriel;
+import parametres.BoiteNoire;
+import static parametres.InitialiserParams.commandespermises;
 import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.text.ParseException;
 import java.util.Arrays;
-import java.util.List;
+import java.util.HashMap;
 import java.util.Properties;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.mail.Flags;
 import javax.mail.Folder;
 import javax.mail.Message;
 import javax.mail.MessagingException;
+import javax.mail.NoSuchProviderException;
 import javax.mail.Session;
 import javax.mail.Store;
 import javax.mail.search.SearchTerm;
+import static parametres.InitialiserParams.envoyeursagrees;
 
 /**
  *
@@ -40,11 +42,14 @@ import javax.mail.search.SearchTerm;
  */
 public class ValiderCourriels {
 
-    public static void ConnSrvCourriel(String nomserveur, String protocole, int port, String identifiant, String motdepasse) throws FileNotFoundException {
-        String renvoyer = "\r\n" + String.format("%44s", "Renvoyer le courriel");
-        String pasrenvoyer = "\r\n" + String.format("%60s", "Pas de besoin de renvoyer le courriel");
+    static String renvoyer = "\r\n" + String.format("%44s", "Renvoyer le courriel");
+    static String pasrenvoyer = "\r\n" + String.format("%60s", "Pas de besoin de renvoyer le courriel");
+
+    public static void ConnSrvCourriel(String nomserveur, String protocole, int port, String identifiant, String motdepasse) throws FileNotFoundException, NoSuchProviderException, IOException, ParseException {
+
+        //Se connecter au serveur courriel
         Store store = null;
-        Folder folder = null;                                                                                                                                     //    int iport = Integer.parseInt(sport);                                                                                           
+
         try {
             Properties prop = new Properties();
             prop.setProperty("mail.store.protocol", protocole);
@@ -55,62 +60,77 @@ public class ValiderCourriels {
             }
             Session session = Session.getDefaultInstance(prop);
             store = session.getStore();
-            //System.out.println("b40 connected");
+
             try {
                 store.connect(nomserveur, port, identifiant, motdepasse);
-                folder = store.getDefaultFolder();
-                if (folder == null) {
-                    throw new Exception("No default folder");
-                }
-                folder = folder.getFolder("DISCARD");
-                if (folder == null) {
-                    throw new Exception("No INBOX");
-                }
-                folder.open(Folder.READ_WRITE);
-                List<EnvoyeurAgree> eas = new InitialiserParams().envoyeursagrees();
+                LireDossier(store);
 
-                SearchTerm st = new SearchTerm() {
-                    @Override
-                    public boolean match(Message message) {
-                        try {
-                            if (eas.contains((Arrays.toString(message.getFrom()) + "-" + message.getSubject()))) {
-                                return true;
-                            } else {
-                            }
-                        } catch (MessagingException ex) {
-                            try {
-                                BoiteNoire.enregistrer("La boite de reception n'a pas pu être lue proprement " + ex.getMessage() + pasrenvoyer, "erreur");
-                            } catch (FileNotFoundException ex1) {
-                                Logger.getLogger(ValiderCourriels.class.getName()).log(Level.SEVERE, null, ex1);
-                            }
-                        }
-                        return false;
-                    }
-                };
-                Message[] msgs = folder.search(st);
-                for (Message msg : msgs) {
-                    msg.setFlag(Flags.Flag.DELETED, true);
-
-                }
             } catch (MessagingException ex) {
                 BoiteNoire.enregistrer("La connexion au serveur courriel a échoué à cause de " + ex.getMessage() + pasrenvoyer, "erreur");
             }
 
-        } catch (Exception ex) {
-            BoiteNoire.enregistrer("La connexion au serveur courriel a échoué2 à cause de " + ex.getMessage(), "erreur");
-
         } finally {
             try {
-                if (folder != null) {
-                    folder.close(true);
-                }
-                if (store != null) {
+
+                if (store.isConnected()) {
                     store.close();
+                    BoiteNoire.enregistrer("La connexion au serveur courriel est terminée proprement", "success");
                 }
             } catch (MessagingException ex) {
-                BoiteNoire.enregistrer("La connexion au serveur courriel a échoué3 à cause de " + ex.getMessage(), "erreur");
+                BoiteNoire.enregistrer("La connexion au serveur courriel n'a pas été terminée proprement à cause de " + store.toString() + ex.getMessage(), "erreur");
             }
+
         }
     }
 
+//    Itérer à travers le dossier Inbox et filrer les courriels venant des envoyeurs agrées
+    static void LireDossier(Store store) throws MessagingException, FileNotFoundException, IOException {
+        Folder dossier = store.getFolder("inbox");
+        dossier.open(Folder.READ_WRITE);
+        BoiteNoire.enregistrer("La connexion au serveur courriel est établie et la directoire " + dossier.toString() + " est ouverte", "succes");
+        HashMap<String, String> easMap = envoyeursagrees();
+
+        SearchTerm st;
+        st = new SearchTerm() {
+            @Override
+            public boolean match(Message message) {
+
+                try {
+                    if (!easMap.containsKey((Arrays.toString(message.getFrom()) + "-" + message.getSubject()))) {
+                    } else {
+                        return true;
+                    }
+                } catch (MessagingException ex) {
+                    try {
+                        BoiteNoire.enregistrer("Un des courriels n'a pas pu être lu à cause de " + store.toString() + ex.getMessage(), "erreur");
+                    } catch (FileNotFoundException ex1) {
+
+                    }
+                }
+
+                return false;
+            }
+        };
+
+        
+        HashMap<String, String> cpsMap = null;
+
+        //Itérer à travers le dossier des courriels valides
+        Message[] msgs = dossier.search(st);
+
+        for (Message msg : msgs) {
+            
+            //Construire la liste des commandes permises si elle est vide
+            if (cpsMap == null) {
+                cpsMap = commandespermises();
+            }
+            
+            TraiterCourriel tc = new TraiterCourriel(msg, cpsMap);
+            // System.out.println(msg.getContent().toString());
+            msg.setFlag(Flags.Flag.DELETED, true);
+
+        }
+    }
+
+    
 }

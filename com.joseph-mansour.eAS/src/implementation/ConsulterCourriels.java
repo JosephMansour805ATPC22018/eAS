@@ -17,22 +17,20 @@
  */
 package implementation;
 
-import Parametres.BoiteNoire;
-import Parametres.EnvoyeurAgree;
-import Parametres.InitialiserParams;
-import Parametres.ServeurCourriel;
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
+import static parametres.InitialiserParams.serveurcourriel;
+import parametres.ServeurCourriel;
 import com.google.gson.JsonIOException;
-import com.google.gson.JsonSyntaxException;
 import com.google.gson.stream.MalformedJsonException;
+import entites.Courriel;
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.PrintStream;
-import java.util.List;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import javax.mail.NoSuchProviderException;
 
 /**
  *
@@ -40,21 +38,44 @@ import java.util.List;
  */
 public class ConsulterCourriels {
 
-    public  static  String dirTravail;
+    public static String dirTravail;
 
-    public static void main(String[] args) throws FileNotFoundException, MalformedJsonException, JsonIOException {
+    public static void main(String[] args) throws FileNotFoundException, MalformedJsonException, JsonIOException, NoSuchProviderException, IOException, ParseException {
         //Assigner la directoire du travail
         dirTravail = args.length == 0 ? ".\\" : args[0];
 
-       
-       
-            ServeurCourriel sc = new InitialiserParams().serveurcourriel();
-            List<EnvoyeurAgree> eas =new InitialiserParams().envoyeursagrees();
-            System.out.println(eas.contains("mansourjo@mea.com.lb-eSA1"));
-            //System.out.println(eas.toString().contains("mansourjo@mea.com.lb-eSA1"));
-            //System.out.println(eas.("mansourjo@mea.com.lb-eSA1"));
-            //Se connecter au serveur courriel
-        // ValiderCourriels.ConnSrvCourriel(sc.getNomServeur(), sc.getProtocole(), Integer.parseInt(sc.getPort()), sc.getIdentifiant(), sc.getMotDePasse());
-       
+// try {
+//                Runtime rt = Runtime.getRuntime();
+//                //Process pr = rt.exec("cmd /c dir");
+//                Process pr = rt.exec("cmd /c dir");
+// 
+//                BufferedReader input = new BufferedReader(new InputStreamReader(pr.getInputStream()));
+// 
+//                String line=null;
+// 
+//                while((line=input.readLine()) != null) {
+//                    System.out.println(line);
+//                }
+// 
+//                int exitVal = pr.waitFor();
+//                System.out.println("Exited with error code "+exitVal);
+// 
+//            } catch(Exception e) {
+//                System.out.println(e.toString());
+//                e.printStackTrace();
+//            }
+        
+
+ Courriel courriel = new Courriel.CourrielBuilder("1", "envoyeur", "recepteur", "sujet", new SimpleDateFormat("dd/MM/yyyy").parse("14/06/2018"), "cont").build();
+       Gson gson = new Gson();
+        String json = gson.toJson(courriel);
+        try (FileWriter file = new FileWriter(dirTravail+courriel.getId()+".json"))
+            {
+                file.write(json);
+    }
+      //  ServeurCourriel sc = serveurcourriel();
+        //Se connecter au serveur courriel
+      //  ValiderCourriels.ConnSrvCourriel(sc.getNomServeur(), sc.getProtocole(), Integer.parseInt(sc.getPort()), sc.getIdentifiant(), sc.getMotDePasse());
+
     }
 }
