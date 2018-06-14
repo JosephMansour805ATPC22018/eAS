@@ -21,27 +21,16 @@ package parametres;
  *
  * @author Administrator
  */
-public class EnvoyeurAgree {
+public class CommandePermise {
+    private  String clefCommande;
+    private  String commande;
 
-    private String adresseEnvoyeur;
-    private String sujet;
-    private String adresseModerateur;
-
-    public String getAdresseEnvoyeur() {
-        return adresseEnvoyeur;
+    public String getClefCommande() {
+        return clefCommande;
     }
 
-    public String getAdresseModerateur() {
-        return adresseModerateur;
+    public String getCommande() {
+        return commande;
     }
-
-    public String getSujet() {
-        return sujet;
-    }
-
-    @Override
-    public String toString() {
-        return adresseEnvoyeur + "-" + sujet;
-    }
-
+    
 }

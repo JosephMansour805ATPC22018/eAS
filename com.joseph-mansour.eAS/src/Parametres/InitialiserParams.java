@@ -15,7 +15,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-package Parametres;
+package parametres;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -26,11 +26,9 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.lang.reflect.Type;
 import com.google.gson.reflect.TypeToken;
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -40,7 +38,7 @@ import java.util.List;
 public class InitialiserParams {
 
     //Lire les informations relatives au Serveur courriel du fichier serveurcourriel.json
-    public ServeurCourriel serveurcourriel() {
+    public static ServeurCourriel serveurcourriel() {
         ServeurCourriel sc = null;
         BufferedReader reader = null;
         File file = new File(dirTravail + "serveurcourriel.json");
@@ -53,13 +51,13 @@ public class InitialiserParams {
             try {
                 BoiteNoire.enregistrer("Fichier serveurcourriel.json n'a pas pu être lu à cause de: " + ex.getMessage(), "erreur");
             } catch (FileNotFoundException ex1) {
-                Logger.getLogger(InitialiserParams.class.getName()).log(Level.SEVERE, null, ex1);
+               
             }
         } catch (JsonIOException | JsonSyntaxException | NumberFormatException e) {
             try {
                 BoiteNoire.enregistrer("Fichier serveurcourriel.json est mal formé à cause de: " + e.getMessage(), "erreur");
             } catch (FileNotFoundException ex) {
-                Logger.getLogger(InitialiserParams.class.getName()).log(Level.SEVERE, null, ex);
+               
             }
         }
         return sc;
@@ -67,32 +65,69 @@ public class InitialiserParams {
     }
 
     //Lire les informations relatives aux Envoyeurs agrés du fichier envoyeursagrees.json
-    public List<EnvoyeurAgree> envoyeursagrees() {
+    public static HashMap<String, String> envoyeursagrees() {
         List<EnvoyeurAgree> eas = null;
-
+        HashMap<String, String> easMap = new HashMap<>();
         BufferedReader reader = null;
         File file = new File(dirTravail + "envoyeursagrees.json");
         try {
             reader = new BufferedReader(new FileReader(file));
-            Type listType = new TypeToken<List<EnvoyeurAgree>>(){}.getType();
+            Type listType = new TypeToken<List<EnvoyeurAgree>>() {
+            }.getType();
             eas = new Gson().fromJson(reader, listType);
-            
+
+            for (EnvoyeurAgree o : eas) {
+                easMap.put(o.getAdresseEnvoyeur() + "-" + o.getSujet(), o.getAdresseModerateur());
+            }
 
         } catch (FileNotFoundException ex) {
             try {
                 BoiteNoire.enregistrer("Fichier envoyeursagrees.json n'a pas pu être lu à cause de: " + ex.getMessage(), "erreur");
             } catch (FileNotFoundException ex1) {
-                Logger.getLogger(InitialiserParams.class.getName()).log(Level.SEVERE, null, ex1);
+               
             }
         } catch (JsonIOException | JsonSyntaxException | NumberFormatException e) {
             try {
                 BoiteNoire.enregistrer("Fichier envoyeursagrees.json est mal formé à cause de: " + e.getMessage(), "erreur");
             } catch (FileNotFoundException ex) {
-                Logger.getLogger(InitialiserParams.class.getName()).log(Level.SEVERE, null, ex);
+               
             }
         }
 
-        return eas;
+        return easMap;
+
+    }
+     //Lire la liste des commeandes permises du fichier commandespermises.json
+    public static HashMap<String, String> commandespermises() {
+        List<CommandePermise> cps = null;
+        HashMap<String, String> cpsMap = new HashMap<>();
+        BufferedReader reader = null;
+        File file = new File(dirTravail + "commandespersmises.json");
+        try {
+            reader = new BufferedReader(new FileReader(file));
+            Type listType = new TypeToken<List<EnvoyeurAgree>>() {
+            }.getType();
+            cps = new Gson().fromJson(reader, listType);
+
+            for (CommandePermise o : cps) {
+                cpsMap.put(o.getClefCommande(), o.getCommande());
+            }
+
+        } catch (FileNotFoundException ex) {
+            try {
+                BoiteNoire.enregistrer("Fichier commandespermises.json n'a pas pu être lu à cause de: " + ex.getMessage(), "erreur");
+            } catch (FileNotFoundException ex1) {
+                
+            }
+        } catch (JsonIOException | JsonSyntaxException | NumberFormatException e) {
+            try {
+                BoiteNoire.enregistrer("Fichier commandespermises.json est mal formé à cause de: " + e.getMessage(), "erreur");
+            } catch (FileNotFoundException ex) {
+                
+            }
+        }
+
+        return cpsMap;
 
     }
 }
