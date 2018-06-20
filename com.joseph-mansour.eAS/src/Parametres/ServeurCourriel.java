@@ -28,6 +28,16 @@ public class ServeurCourriel {
     private  String port;
     private  String identifiant;
     private  String motDePasse;
+    private String smtp;
+    private String smtpPort;
+
+    public String getSmtp() {
+        return smtp;
+    }
+
+    public String getSmtpPort() {
+        return smtpPort;
+    }
 
    
   

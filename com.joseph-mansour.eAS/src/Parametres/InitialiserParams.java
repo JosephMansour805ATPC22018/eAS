@@ -37,8 +37,11 @@ import java.util.List;
  */
 public class InitialiserParams {
 
+    //Separateur de directoires
+    public  final static String SEP_DIR="windows".equals(System.getProperty("os.name").substring(0,7).toLowerCase()) ? "\\":"/";
+    public  final static String shell = "windows".equals(System.getProperty("os.name").substring(0,7).toLowerCase()) ? "cmd /c ":". ";
     //Lire les informations relatives au Serveur courriel du fichier serveurcourriel.json
-    public static ServeurCourriel serveurcourriel() {
+    public final static ServeurCourriel serveurcourriel() {
         ServeurCourriel sc = null;
         BufferedReader reader = null;
         File file = new File(dirTravail + "serveurcourriel.json");
@@ -65,7 +68,7 @@ public class InitialiserParams {
     }
 
     //Lire les informations relatives aux Envoyeurs agrés du fichier envoyeursagrees.json
-    public static HashMap<String, String> envoyeursagrees() {
+    public  static HashMap<String, String> envoyeursagrees() {
         List<EnvoyeurAgree> eas = null;
         HashMap<String, String> easMap = new HashMap<>();
         BufferedReader reader = null;
@@ -98,14 +101,14 @@ public class InitialiserParams {
 
     }
      //Lire la liste des commeandes permises du fichier commandespermises.json
-    public static HashMap<String, String> commandespermises() {
+    public  static HashMap<String, String> commandespermises() {
         List<CommandePermise> cps = null;
         HashMap<String, String> cpsMap = new HashMap<>();
         BufferedReader reader = null;
-        File file = new File(dirTravail + "commandespersmises.json");
+        File file = new File(dirTravail + "commandespermises.json");
         try {
             reader = new BufferedReader(new FileReader(file));
-            Type listType = new TypeToken<List<EnvoyeurAgree>>() {
+            Type listType = new TypeToken<List<CommandePermise>>() {
             }.getType();
             cps = new Gson().fromJson(reader, listType);
 
