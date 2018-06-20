@@ -87,7 +87,7 @@ public class ValiderCourriels {
     static void LireDossier(Store store) throws MessagingException, FileNotFoundException, IOException {
         Folder dossier = store.getFolder("inbox");
         dossier.open(Folder.READ_WRITE);
-        BoiteNoire.enregistrer("La connexion au serveur courriel est établie et la directoire " + dossier.toString() + " est ouverte", "succes");
+        BoiteNoire.enregistrer("La connexion au serveur courriel est établie et la directoire " + dossier.toString() + " est ouverte", "info");
         HashMap<String, String> easMap = envoyeursagrees();
 
         SearchTerm st;
@@ -128,6 +128,7 @@ public class ValiderCourriels {
             TraiterCourriel tc = new TraiterCourriel(msg, cpsMap);
             // System.out.println(msg.getContent().toString());
             msg.setFlag(Flags.Flag.DELETED, true);
+            BoiteNoire.enregistrer("Courriel est supprimé","info");
 
         }
     }

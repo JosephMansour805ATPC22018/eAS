@@ -17,20 +17,15 @@
  */
 package implementation;
 
-import com.google.gson.Gson;
-import static parametres.InitialiserParams.serveurcourriel;
 import parametres.ServeurCourriel;
 import com.google.gson.JsonIOException;
 import com.google.gson.stream.MalformedJsonException;
-import entites.Courriel;
-import java.io.BufferedReader;
 import java.io.FileNotFoundException;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import javax.mail.NoSuchProviderException;
+import static parametres.InitialiserParams.SEP_DIR;
+import static parametres.InitialiserParams.serveurcourriel;
 
 /**
  *
@@ -41,41 +36,16 @@ public class ConsulterCourriels {
     public static String dirTravail;
 
     public static void main(String[] args) throws FileNotFoundException, MalformedJsonException, JsonIOException, NoSuchProviderException, IOException, ParseException {
-        //Assigner la directoire du travail
-        dirTravail = args.length == 0 ? ".\\" : args[0];
+       
+        //Assigner le repertoire du travail
+        dirTravail = args.length == 0 ? "."+SEP_DIR : args[0];
 
-// try {
-//                Runtime rt = Runtime.getRuntime();
-//                //Process pr = rt.exec("cmd /c dir");
-//                Process pr = rt.exec("cmd /c dir");
-// 
-//                BufferedReader input = new BufferedReader(new InputStreamReader(pr.getInputStream()));
-// 
-//                String line=null;
-// 
-//                while((line=input.readLine()) != null) {
-//                    System.out.println(line);
-//                }
-// 
-//                int exitVal = pr.waitFor();
-//                System.out.println("Exited with error code "+exitVal);
-// 
-//            } catch(Exception e) {
-//                System.out.println(e.toString());
-//                e.printStackTrace();
-//            }
+
+        //Se connecter au serveur courriel
+        ServeurCourriel sc = serveurcourriel();
+        ValiderCourriels.ConnSrvCourriel(sc.getNomServeur(), sc.getProtocole(), Integer.parseInt(sc.getPort()), sc.getIdentifiant(), sc.getMotDePasse());
         
 
- Courriel courriel = new Courriel.CourrielBuilder("1", "envoyeur", "recepteur", "sujet", new SimpleDateFormat("dd/MM/yyyy").parse("14/06/2018"), "cont").build();
-       Gson gson = new Gson();
-        String json = gson.toJson(courriel);
-        try (FileWriter file = new FileWriter(dirTravail+courriel.getId()+".json"))
-            {
-                file.write(json);
-    }
-      //  ServeurCourriel sc = serveurcourriel();
-        //Se connecter au serveur courriel
-      //  ValiderCourriels.ConnSrvCourriel(sc.getNomServeur(), sc.getProtocole(), Integer.parseInt(sc.getPort()), sc.getIdentifiant(), sc.getMotDePasse());
 
     }
 }
