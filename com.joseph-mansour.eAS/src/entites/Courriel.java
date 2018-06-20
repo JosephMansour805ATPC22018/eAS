@@ -118,6 +118,30 @@ public class Courriel {
         return remarque;
     }
 
+    public void setStatut(String statut) {
+        this.statut = statut;
+    }
+
+    public void setAdresseModerateur(String adresseModerateur) {
+        this.adresseModerateur = adresseModerateur;
+    }
+
+    public void setDateModeration(Date dateModeration) {
+        this.dateModeration = dateModeration;
+    }
+
+    public void setSujetModereration(String sujetModereration) {
+        this.sujetModereration = sujetModereration;
+    }
+
+    public void setDateExecution(Date dateExecution) {
+        this.dateExecution = dateExecution;
+    }
+
+    public void setRemarque(String remarque) {
+        this.remarque = remarque;
+    }
+
     
     
     //Classe de CourrielBuilder
