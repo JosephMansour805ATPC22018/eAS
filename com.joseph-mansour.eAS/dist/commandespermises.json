@@ -1,0 +1,4 @@
+[
+	{"clefCommande":"hn","commande":"hostname"},
+	{"clefCommande":"ps","commande":"ps -ef"}
+]
