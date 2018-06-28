@@ -17,35 +17,30 @@
  */
 package implementation;
 
-import parametres.ServeurCourriel;
 import com.google.gson.JsonIOException;
 import com.google.gson.stream.MalformedJsonException;
+import entites.ServeurCourriel;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.text.ParseException;
 import javax.mail.NoSuchProviderException;
-import static parametres.InitialiserParams.SEP_DIR;
-import static parametres.InitialiserParams.serveurcourriel;
+import static parametres.Params.REP_TRAVAIL;
+import static parametres.Params.SEP_REP;
+import static parametres.Params.serveurCourriel;
 
 /**
- *
- * @author Administrator
+ * La fonction principale qui appelle la classe ValiderCourriels 
+ * @author Joseph Mansour
  */
 public class ConsulterCourriels {
 
-    public static String dirTravail;
-
     public static void main(String[] args) throws FileNotFoundException, MalformedJsonException, JsonIOException, NoSuchProviderException, IOException, ParseException {
-       
+
         //Assigner le repertoire du travail
-        dirTravail = args.length == 0 ? "."+SEP_DIR : args[0];
+        REP_TRAVAIL = args.length == 0 ? "." + SEP_REP : args[0];
 
-
-        //Se connecter au serveur courriel
-        ServeurCourriel sc = serveurcourriel();
-        ValiderCourriels.ConnSrvCourriel(sc.getNomServeur(), sc.getProtocole(), Integer.parseInt(sc.getPort()), sc.getIdentifiant(), sc.getMotDePasse());
-        
-
+        //Se connecter au serveur courriel pour valider les courriels
+        new ValiderCourriels(serveurCourriel());
 
     }
 }

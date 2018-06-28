@@ -17,6 +17,7 @@
  */
 package entites;
 
+import com.google.gson.Gson;
 import java.util.Date;
 
 /**
@@ -142,7 +143,17 @@ public class Courriel {
         this.remarque = remarque;
     }
 
-    
+    /**
+     *
+     * @return formatter courriel en Json
+     */
+    @Override
+    public String toString() {
+
+        //Les infos du Client formattees avec JSON
+        return new Gson().toJson(this);
+
+    }
     
     //Classe de CourrielBuilder
     public static class CourrielBuilder {

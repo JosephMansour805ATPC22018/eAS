@@ -19,7 +19,6 @@ package execution;
 
 import com.google.gson.Gson;
 import entites.Courriel;
-import static implementation.ConsulterCourriels.dirTravail;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -29,7 +28,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Properties;
 import javax.mail.Message;
 import javax.mail.MessagingException;
@@ -38,100 +36,170 @@ import javax.mail.Transport;
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
-import static parametres.InitialiserParams.serveurcourriel;
-import parametres.ServeurCourriel;
+import entites.ServeurCourriel;
 import parametres.BoiteNoire;
-import static parametres.InitialiserParams.shell;
+import parametres.Params;
+import static parametres.Params.A_EXECUTER;
+import static parametres.Params.A_MODERER;
+import static parametres.Params.COMMANDE_NON_PERMISE;
+import static parametres.Params.COMMANDE_NON_PERMISE_DESC;
+import static parametres.Params.EXECUTE;
+import static parametres.Params.LIBELLE_ID;
+import static parametres.Params.MAL_FORME;
+import static parametres.Params.MAL_FORME_DESC;
+import static parametres.Params.MODERE;
+import static parametres.Params.PREFIX_ID;
+import static parametres.Params.NON_MODERE;
 
 /**
  *
  * @author Administrator
  */
 public class TraiterCourriel {
+String NOUVEAU_COURRIEL="\"Un nouveau courriel est reçu, ID: ";
+    
+    
+    /**
+     * Constructeur pour le courriel à modérer
+     *
+     * @param msg
+     * @param id format dresseEnvoyeur + "-" + sujet
+     * @param adresseModerateur
+     * @param clefCommande
+     * @param commande
+     * @throws MessagingException
+     * @throws IOException
+     */
+    public TraiterCourriel(Message msg, String id, String adresseModerateur, String clefCommande, String commande) throws MessagingException, IOException {
+        String adresseEnvoyeur = Arrays.toString(msg.getFrom());
+        String adresseDestinataire = Arrays.toString(msg.getAllRecipients());
+        Date dateEnvoyer = msg.getReceivedDate();
+        String sujet = msg.getSubject();
+        String sujetID = sujet + LIBELLE_ID + id;
+        Courriel courriel = new Courriel.CourrielBuilder(id, adresseEnvoyeur, adresseDestinataire, sujet, dateEnvoyer, clefCommande ).build();
+        courriel.setRemarque(commande);
+        courriel.setAdresseModerateur(adresseModerateur);
+        courriel.setStatut(NON_MODERE);
+        courriel.setSujetModereration(sujetID);
+        BoiteNoire.enregistrer(NOUVEAU_COURRIEL + id + ", statut: " + A_MODERER, "info");
+        String contenu = adresseEnvoyeur + " voudrait exécuter la commande suivante. Pour confirmer répondre au courriel sans rien modifier, sinon ignorer ce courriel" + "\r\n" + commande;
+        envoyerCourriel(adresseModerateur, sujetID, contenu);
+        sauvegarderCourrielJson(courriel);
 
-    private final Message msg;
-    private final HashMap<String, String> cpsMap;
+    }
 
-    public TraiterCourriel(Message msg, HashMap<String, String> cpsMap) throws MessagingException, IOException {
-        this.msg = msg;
-        this.cpsMap = cpsMap;
-        Traiter();
+    /**
+     * Constructeur pour le courriel à exécuter
+     *
+     * @param msg courriel reçu à traiter
+     * @param idCourriel
+     * @param clefCommande
+     * @param commande
+     * @throws MessagingException
+     * @throws IOException
+     */
+    public TraiterCourriel(Message msg, String idCourriel, String clefCommande, String commande) throws MessagingException, IOException {
+        String adresseEnvoyeur = Arrays.toString(msg.getFrom());
+        String adresseDestinataire = Arrays.toString(msg.getAllRecipients());
+        Date dateEnvoyer = msg.getReceivedDate();
+        String sujet = msg.getSubject();
+        Courriel courriel = new Courriel.CourrielBuilder(idCourriel, adresseEnvoyeur, adresseDestinataire, sujet, dateEnvoyer, clefCommande + ":" + commande).build();
+        courriel.setStatut(A_EXECUTER);
+        BoiteNoire.enregistrer(NOUVEAU_COURRIEL + idCourriel + ", statut: " + A_EXECUTER, "info");
+        String resultat = executerCommande(commande);
+        courriel.setStatut(EXECUTE);
+        courriel.setDateExecution(new Date());
+        courriel.setRemarque(resultat);
+        String sujetExe = sujet + LIBELLE_ID + idCourriel + " " + EXECUTE;
+        envoyerCourriel(adresseEnvoyeur, sujetExe, resultat);
+        sauvegarderCourrielJson(courriel);
 
+    }
+    
+    /**
+     * Constructeur pour le courriel modéré à exécuter
+     *
+     * @param msg courriel reçu à traiter
+     * @param idCourriel
+     * @throws MessagingException
+     * @throws IOException
+     */
+    public TraiterCourriel(Message msg, Courriel courriel) throws MessagingException, IOException {
+        String adresseEnvoyeur = courriel.getAdresseEnvoyeur()+","+courriel.getAdresseModerateur();
+        BoiteNoire.enregistrer(NOUVEAU_COURRIEL  + courriel.getId() + ", statut: " + MODERE , "info");
+        String resultat = executerCommande(courriel.getRemarque());
+        courriel.setStatut(courriel.getStatut()+", "+EXECUTE);
+        courriel.setDateModeration(msg.getReceivedDate());
+        courriel.setDateExecution(new Date());
+        courriel.setRemarque(resultat);
+        String sujetExe = LIBELLE_ID + courriel.getId() + " " + EXECUTE;
+        envoyerCourriel(adresseEnvoyeur, sujetExe, resultat);
+        sauvegarderCourrielJson(courriel);
+
+    }
+
+    /**
+     * Constructeur pour le courriel dont le contenu contient une commande non
+     * permise
+     *
+     *
+     * @param msg
+     * @param clefCommande
+     *
+     * @throws MessagingException
+     * @throws IOException
+     */
+    public TraiterCourriel(Message msg, String clefCommande) throws MessagingException, IOException {
+
+        BoiteNoire.enregistrer("Un courriel, reçu de " + Arrays.toString(msg.getFrom()) + ", contient une commande non permise", "info");
+        envoyerCourriel(Arrays.toString(msg.getFrom()), COMMANDE_NON_PERMISE, COMMANDE_NON_PERMISE_DESC);
+    }
+
+    /**
+     * Constructeur pour le courriel mal formé
+     *
+     * @param msg
+     *
+     * @throws MessagingException
+     * @throws IOException
+     */
+    public TraiterCourriel(Message msg) throws MessagingException, IOException {
+        envoyerCourriel(Arrays.toString(msg.getFrom()), MAL_FORME, MAL_FORME_DESC);
+        BoiteNoire.enregistrer("Un courriel mal formé est reçu de " + Arrays.toString(msg.getFrom()), "info");
     }
 
     
 
-    private void Traiter() throws MessagingException, IOException {
-
-        //Construire l'objet courriel à partir du courriel reçu
-        String adresseEnvoyeur = Arrays.toString(msg.getFrom());
-        int nb = nbFichiersJsonEnvoyeur(adresseEnvoyeur);
-        String sujet = msg.getSubject();
-        String id = adresseEnvoyeur + "-" + sujet + "-" + nb;
-        String adresseDestinataire = Arrays.toString(msg.getAllRecipients());
-
-        Date dateEnvoyer = msg.getSentDate();
-        String contenu = msg.getContent().toString();
-        Courriel courriel = new Courriel.CourrielBuilder(id, adresseEnvoyeur, adresseDestinataire, sujet, dateEnvoyer, contenu).build();
-
-        BoiteNoire.enregistrer("Un nouveau courriel est reçu: ID:" + id, "info");
-        //Executer la commande inclue dans le contenu du courriel
-        String resultat = ExecuterCommande(contenu);
-        BoiteNoire.enregistrer("Courriel " + id + " est en train de traitement", "info");
-
-        //Changer le statut du courriel à Exécuté
-        courriel.setStatut("Executé");
-        courriel.setRemarque(resultat);
-        BoiteNoire.enregistrer("Courriel " + id + " est exécuté", "info");
-
-        //Sauvegarder le courriel dans un fichier Json
+    private void sauvegarderCourrielJson(Courriel courriel) throws IOException {
         Gson gson = new Gson();
         String json = gson.toJson(courriel);
-        try (FileWriter file = new FileWriter(dirTravail + courriel.getId() + ".json")) {
+        try (FileWriter file = new FileWriter(Params.REP_TRAVAIL + courriel.getId() + ".json")) {
             file.write(json);
         }
-        //Repondre au courriel dont le contenu est le resultat de la commande exéecutée
-        EnvoyerCourriel(adresseEnvoyeur, sujet + "-ID:" + id, resultat);
-        BoiteNoire.enregistrer("Courriel " + id + " a été répondu", "info");
+
     }
 
-    // @SuppressWarnings("empty-statement")
-    private String ExecuterCommande(String commande) throws FileNotFoundException {
-
-        String resultat="" ;
-
-        //Si la commande fait partie des commandes valides
-        if (cpsMap.containsKey(commande)) {
-            String commandeaexecuter = shell+cpsMap.get(commande);
-
-            try {
-                Runtime rt = Runtime.getRuntime();
-                //Process pr = rt.exec("cmd /c dir");
-                Process pr = rt.exec(commandeaexecuter);
-
-                BufferedReader input = new BufferedReader(new InputStreamReader(pr.getInputStream()));
-                String ligne;
-                while ((ligne = input.readLine()) != null) {
-                    resultat += ligne+"\r\n";
-                }
-
-                int exitVal = pr.waitFor();
-                resultat = "La commande " + commande + " a été exécutée avec le resultat suivant: " + resultat ;
-
-            } catch (IOException | InterruptedException e) {
-                resultat = e.toString();
+    private String executerCommande(String commande) throws FileNotFoundException {
+        String resultat = "";
+        try {
+            Runtime rt = Runtime.getRuntime();
+            Process pr = rt.exec(commande);
+            BufferedReader input = new BufferedReader(new InputStreamReader(pr.getInputStream()));
+            String ligne;
+            while ((ligne = input.readLine()) != null) {
+                resultat += ligne + "\r\n";
             }
-
-        } else {
-            resultat = "La commande " + commande + " n'est pas permise";
+            resultat = "La commande " + commande + " a été exécutée avec le resultat suivant: " + resultat;
+        } catch (IOException e) {
+            resultat = e.toString();
         }
         BoiteNoire.enregistrer(resultat, "info");
         return (resultat);
 
     }
 
-    private void EnvoyerCourriel(String adresseDestinataire, String sujet, String contenu) throws AddressException, MessagingException {
-        ServeurCourriel sc = serveurcourriel();
+    private void envoyerCourriel(String adresseDestinataire, String sujet, String contenu) throws AddressException, MessagingException {
+        ServeurCourriel sc = Params.serveurCourriel();
         Session getMailSession;
         MimeMessage generateMailMessage;
         Properties mailServerProperties = System.getProperties();
@@ -142,17 +210,17 @@ public class TraiterCourriel {
         generateMailMessage = new MimeMessage(getMailSession);
         generateMailMessage.addRecipient(Message.RecipientType.TO, new InternetAddress(adresseDestinataire));
         generateMailMessage.setSubject(sujet);
-        generateMailMessage.setContent(contenu, "text/html");
+        generateMailMessage.setContent(contenu, "text/plain");
         Transport transport = getMailSession.getTransport("smtp");
         transport.connect("smtp.gmail.com", sc.getIdentifiant(), sc.getMotDePasse());
         transport.sendMessage(generateMailMessage, generateMailMessage.getAllRecipients());
         transport.close();
     }
 
-    private int nbFichiersJsonEnvoyeur(String envoyeur) throws IOException {
+    private int nbFichiersCourriel() throws IOException {
 
-        FilenameFilter filefilter = (File file, String filename) -> filename.toLowerCase().endsWith(".json") && filename.startsWith(envoyeur);
-        File[] fList = new File(dirTravail).listFiles(filefilter);
+        FilenameFilter filefilter = (File file, String filename) -> filename.toLowerCase().endsWith(".json") && filename.toLowerCase().startsWith(PREFIX_ID.toLowerCase());
+        File[] fList = new File(Params.REP_TRAVAIL).listFiles(filefilter);
         return fList.length;
     }
 
