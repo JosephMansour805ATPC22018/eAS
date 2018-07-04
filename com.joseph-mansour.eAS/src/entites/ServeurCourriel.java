@@ -19,7 +19,7 @@ package entites;
 
 /**
  *
- * @author Administrator
+ * @author Joseph Mansour
  */
 public class ServeurCourriel {
 
@@ -30,6 +30,11 @@ public class ServeurCourriel {
     private  String motDePasse;
     private String smtp;
     private String smtpPort;
+    private String addresseCourriel;
+
+    public String getAddresseCourriel() {
+        return addresseCourriel;
+    }
 
     public String getSmtp() {
         return smtp;

@@ -33,43 +33,38 @@ import java.io.FileReader;
  */
 public class Params {
 
-    //Le repertoire où touls les fichiers vont être crées
-    public  static String REP_TRAVAIL;
-
+    //Le repertoire où touls les fichiers vont être crees
+    public static String REP_TRAVAIL;
+    public static String DOSSIER_COURRIELS;
     //Separateur de repertoires
-    public  final static String SEP_REP="unix".equals(System.getProperty("os.name").substring(0,4).toLowerCase()) ? "/":"\\";
-    
-    //Commande shell
-    public  final static String SHELL = "unix".equals(System.getProperty("os.name").substring(0,4).toLowerCase()) ? ". ":"cmd /c ";
-    
-    //Prefix des fichiers courriel
-    public final static String PREFIX_ID="EAS-";
-    
-    //Libelle de l'ID qui va être ajouté au sujet 
-    public final static String LIBELLE_ID=" - ID: ";
-    public final static String A_MODERER="A modérer";
-    public final static String MODERE="Modéré";
-    
-    public final static String NON_MODERE="Non modéré";
-    
-    public final static String EXECUTE="Exécuté";
-    
-    public final static String A_EXECUTER="A exécuter";
+    public final static String SEP_REP = "unix".equals(System.getProperty("os.name").substring(0, 4).toLowerCase()) ? "/" : "\\";
 
-    
-    public final static String MAL_FORME="Contenu mal formé";
-    public final static String MAL_FORME_DESC="Le contenu de votre courriel est mal formé";
-    
-    public final static String COMMANDE_NON_PERMISE="Commande non permise";
-    public final static String COMMANDE_NON_PERMISE_DESC="La commande suivante n'est pas permise:\r\n";
-    
+    //Commande shell
+    public final static String SHELL = "unix".equals(System.getProperty("os.name").substring(0, 4).toLowerCase()) ? ". " : "cmd /c ";
+
+    //Prefix des fichiers courriel
+    public final static String PREFIX_ID = "EAS-";
+
+    //Libelle de l'ID qui va être ajoute au sujet 
+    public final static String LIBELLE_ID = " - ID: ";
+    public final static String A_MODERER = "A moderer";
+    public final static String MODERE = "Modere";
+
+    public final static String EXECUTE = "Execute";
+
+    public final static String A_EXECUTER = "A executer";
+
+    public final static String MAL_CONSTRUIT = "Contenu mal construit";
+    public final static String MAL_CONSTRUIT_DESC = "Le contenu de votre courriel est mal construit";
+
+    public final static String COMMANDE_NON_PERMISE = "Commande non permise";
+    public final static String COMMANDE_NON_PERMISE_DESC = "La commande suivante n'est pas permise:\r\n";
+
     public final static String RENVOYER = "\r\n" + String.format("%44s", "Renvoyer le courriel");
     public final static String PAS_RENVOYER = "\r\n" + String.format("%60s", "Pas de besoin de renvoyer le courriel");
-    
-    
-    
+
     //Lire les informations relatives au Serveur courriel du fichier serveurCourriel.json
-    public static final ServeurCourriel serveurCourriel() {
+    public final static ServeurCourriel serveurCourriel() {
         ServeurCourriel sc = null;
         BufferedReader reader = null;
         File file = new File(Params.REP_TRAVAIL + "serveurcourriel.json");
@@ -90,7 +85,5 @@ public class Params {
         }
         return sc;
     }
-    
-    
-    
+
 }

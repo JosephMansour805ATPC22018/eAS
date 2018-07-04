@@ -19,7 +19,7 @@ package entites;
 
 /**
  *
- * @author Administrator
+ * @author Joseph Mansour
  */
 public class EnvoyeurAgree {
 

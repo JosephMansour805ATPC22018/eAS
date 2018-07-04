@@ -36,13 +36,14 @@ import parametres.BoiteNoire;
 import parametres.Params;
 
 /**
+ * Charger les infos des entites EnvoyeurAgree et CommandePermise a partir des fichiers json
  *
  * @author Joseph Mansour
  */
 public class ChargerEntites {
 
-    //Lire les informations relatives aux Envoyeurs agrés du fichier envoyeursAgreesMap.json
-     HashMap<String, String> envoyeursAgreesMap() {
+    //Lire les informations relatives aux Envoyeurs agres du fichier envoyeursAgrees.json
+    HashMap<String, String> envoyeursAgrees() {
         List<EnvoyeurAgree> listeEnvoyeursAgrees = null;
         HashMap<String, String> easMap = new HashMap<>();
         BufferedReader reader = null;
@@ -70,7 +71,7 @@ public class ChargerEntites {
     }
 
     //Lire la liste des commeandes permises du fichier commandespermises.json
-    public HashMap<String, String> commandesPermisesMap() {
+    public HashMap<String, String> commandesPermises() {
         List<CommandePermise> listeCommandesPermises = null;
         HashMap<String, String> cpsMap = new HashMap<>();
         BufferedReader reader = null;
@@ -94,11 +95,12 @@ public class ChargerEntites {
             } catch (FileNotFoundException ex) {
             }
         }
+
         return cpsMap;
     }
 
-    //Lire les informations relatives aux courriels pas encore modérés du fichier courriels.json
-     Courriel trouverCourriel(String id, String statut) {
+    //Lire les informations relatives aux courriels pas encore moderes du fichier courriels.json
+    Courriel trouverCourriel(String id, String statut) {
         Courriel courriel = null;
         BufferedReader reader = null;
         File file = new File(Params.REP_TRAVAIL + id + ".json");
@@ -114,14 +116,16 @@ public class ChargerEntites {
             }
         } catch (JsonIOException | JsonSyntaxException | NumberFormatException e) {
             try {
-                BoiteNoire.enregistrer("Fichier " + id + ".json est mal formé à cause de: " + e.getMessage(), "erreur");
+                BoiteNoire.enregistrer("Fichier " + id + ".json est mal construit à cause de: " + e.getMessage(), "erreur");
             } catch (FileNotFoundException ex) {
                 return null;
             }
         }
-        if (courriel == null || courriel.getStatut() != statut) {
+        System.out.print("line 123 :");
+        if (courriel == null || !courriel.getStatut().equalsIgnoreCase(statut)) {
             return null;
         } else {
+
             return courriel;
         }
     }

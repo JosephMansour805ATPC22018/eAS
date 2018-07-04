@@ -21,8 +21,8 @@ import com.google.gson.Gson;
 import java.util.Date;
 
 /**
- *
- * @author Administrator
+ * 
+ * @author Joseph MAnsour
  */
 public class Courriel {
 
@@ -39,20 +39,6 @@ public class Courriel {
     private Date dateExecution;
     private String remarque;
 
-//    public Courriel(String id, String adresseEnvoyeur, String adresseDestinataire, String sujet, Date dateEnvoyer, String contenu, String statut, String adresseModerateur, Date dateModeration, String sujetModereration, Date dateExecution, String remarque) {
-//        this.id = id;
-//        this.adresseEnvoyeur = adresseEnvoyeur;
-//        this.adresseDestinataire = adresseDestinataire;
-//        this.sujet = sujet;
-//        this.dateEnvoyer = dateEnvoyer;
-//        this.contenu = contenu;
-//        this.statut = statut;
-//        this.adresseModerateur = adresseModerateur;
-//        this.dateModeration = dateModeration;
-//        this.sujetModereration = sujetModereration;
-//        this.dateExecution = dateExecution;
-//        this.remarque = remarque;
-//    }
 
     private Courriel(CourrielBuilder cb) {
 

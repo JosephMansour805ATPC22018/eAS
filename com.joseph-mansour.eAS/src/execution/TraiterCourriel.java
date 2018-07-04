@@ -20,10 +20,8 @@ package execution;
 import com.google.gson.Gson;
 import entites.Courriel;
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
-import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Arrays;
@@ -37,6 +35,7 @@ import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import entites.ServeurCourriel;
+import javax.mail.Address;
 import parametres.BoiteNoire;
 import parametres.Params;
 import static parametres.Params.A_EXECUTER;
@@ -45,22 +44,21 @@ import static parametres.Params.COMMANDE_NON_PERMISE;
 import static parametres.Params.COMMANDE_NON_PERMISE_DESC;
 import static parametres.Params.EXECUTE;
 import static parametres.Params.LIBELLE_ID;
-import static parametres.Params.MAL_FORME;
-import static parametres.Params.MAL_FORME_DESC;
+import static parametres.Params.MAL_CONSTRUIT;
+import static parametres.Params.MAL_CONSTRUIT_DESC;
 import static parametres.Params.MODERE;
-import static parametres.Params.PREFIX_ID;
-import static parametres.Params.NON_MODERE;
+import static parametres.Params.SHELL;
 
 /**
  *
  * @author Administrator
  */
 public class TraiterCourriel {
-String NOUVEAU_COURRIEL="\"Un nouveau courriel est reçu, ID: ";
-    
-    
+
+    String NOUVEAU_COURRIEL = "\"Un nouveau courriel est recu, ID: ";
+
     /**
-     * Constructeur pour le courriel à modérer
+     * Constructeur pour le courriel a moderer
      *
      * @param msg
      * @param id format dresseEnvoyeur + "-" + sujet
@@ -71,27 +69,27 @@ String NOUVEAU_COURRIEL="\"Un nouveau courriel est reçu, ID: ";
      * @throws IOException
      */
     public TraiterCourriel(Message msg, String id, String adresseModerateur, String clefCommande, String commande) throws MessagingException, IOException {
-        String adresseEnvoyeur = Arrays.toString(msg.getFrom());
-        String adresseDestinataire = Arrays.toString(msg.getAllRecipients());
+        String adresseEnvoyeur = ((InternetAddress) msg.getFrom()[0]).getAddress();
+        String adresseDestinataire = ((InternetAddress) msg.getAllRecipients()[0]).getAddress();
         Date dateEnvoyer = msg.getReceivedDate();
         String sujet = msg.getSubject();
         String sujetID = sujet + LIBELLE_ID + id;
-        Courriel courriel = new Courriel.CourrielBuilder(id, adresseEnvoyeur, adresseDestinataire, sujet, dateEnvoyer, clefCommande ).build();
+        Courriel courriel = new Courriel.CourrielBuilder(id, adresseEnvoyeur, adresseDestinataire, sujet, dateEnvoyer, clefCommande).build();
         courriel.setRemarque(commande);
         courriel.setAdresseModerateur(adresseModerateur);
-        courriel.setStatut(NON_MODERE);
+        courriel.setStatut(A_MODERER);
         courriel.setSujetModereration(sujetID);
         BoiteNoire.enregistrer(NOUVEAU_COURRIEL + id + ", statut: " + A_MODERER, "info");
-        String contenu = adresseEnvoyeur + " voudrait exécuter la commande suivante. Pour confirmer répondre au courriel sans rien modifier, sinon ignorer ce courriel" + "\r\n" + commande;
+        String contenu = adresseEnvoyeur + " voudrait executer la commande suivante. Pour en confirmer, repondre au courriel sans rien modifier, sinon ignorer ce courriel \r\n" + commande;
         envoyerCourriel(adresseModerateur, sujetID, contenu);
         sauvegarderCourrielJson(courriel);
 
     }
 
     /**
-     * Constructeur pour le courriel à exécuter
+     * Constructeur pour le courriel a executer
      *
-     * @param msg courriel reçu à traiter
+     * @param msg courriel recu a traiter
      * @param idCourriel
      * @param clefCommande
      * @param commande
@@ -99,8 +97,8 @@ String NOUVEAU_COURRIEL="\"Un nouveau courriel est reçu, ID: ";
      * @throws IOException
      */
     public TraiterCourriel(Message msg, String idCourriel, String clefCommande, String commande) throws MessagingException, IOException {
-        String adresseEnvoyeur = Arrays.toString(msg.getFrom());
-        String adresseDestinataire = Arrays.toString(msg.getAllRecipients());
+        String adresseEnvoyeur = ((InternetAddress) msg.getFrom()[0]).getAddress();
+        String adresseDestinataire = ((InternetAddress) msg.getAllRecipients()[0]).getAddress();
         Date dateEnvoyer = msg.getReceivedDate();
         String sujet = msg.getSubject();
         Courriel courriel = new Courriel.CourrielBuilder(idCourriel, adresseEnvoyeur, adresseDestinataire, sujet, dateEnvoyer, clefCommande + ":" + commande).build();
@@ -111,24 +109,25 @@ String NOUVEAU_COURRIEL="\"Un nouveau courriel est reçu, ID: ";
         courriel.setDateExecution(new Date());
         courriel.setRemarque(resultat);
         String sujetExe = sujet + LIBELLE_ID + idCourriel + " " + EXECUTE;
-        envoyerCourriel(adresseEnvoyeur, sujetExe, resultat);
         sauvegarderCourrielJson(courriel);
+        //envoyerCourriel(adresseEnvoyeur, sujetExe, resultat);
+        envoyerCourriel("oracleworkflow@mea.com.lb", sujetExe, resultat);
 
     }
-    
+
     /**
-     * Constructeur pour le courriel modéré à exécuter
+     * Constructeur pour le courriel modere a executer
      *
-     * @param msg courriel reçu à traiter
-     * @param idCourriel
+     * @param msg courriel recu a traiter
+     * @param courriel contient les infos du courriel modere
      * @throws MessagingException
      * @throws IOException
      */
     public TraiterCourriel(Message msg, Courriel courriel) throws MessagingException, IOException {
-        String adresseEnvoyeur = courriel.getAdresseEnvoyeur()+","+courriel.getAdresseModerateur();
-        BoiteNoire.enregistrer(NOUVEAU_COURRIEL  + courriel.getId() + ", statut: " + MODERE , "info");
+        String adresseEnvoyeur = courriel.getAdresseEnvoyeur() + "," + courriel.getAdresseModerateur();
+        BoiteNoire.enregistrer(NOUVEAU_COURRIEL + courriel.getId() + ", statut: " + MODERE, "info");
         String resultat = executerCommande(courriel.getRemarque());
-        courriel.setStatut(courriel.getStatut()+", "+EXECUTE);
+        courriel.setStatut(courriel.getStatut() + ", " + EXECUTE);
         courriel.setDateModeration(msg.getReceivedDate());
         courriel.setDateExecution(new Date());
         courriel.setRemarque(resultat);
@@ -151,12 +150,12 @@ String NOUVEAU_COURRIEL="\"Un nouveau courriel est reçu, ID: ";
      */
     public TraiterCourriel(Message msg, String clefCommande) throws MessagingException, IOException {
 
-        BoiteNoire.enregistrer("Un courriel, reçu de " + Arrays.toString(msg.getFrom()) + ", contient une commande non permise", "info");
+        BoiteNoire.enregistrer("Un courriel, recu de " + Arrays.toString(msg.getFrom()) + ", contient une commande non permise", "info");
         envoyerCourriel(Arrays.toString(msg.getFrom()), COMMANDE_NON_PERMISE, COMMANDE_NON_PERMISE_DESC);
     }
 
     /**
-     * Constructeur pour le courriel mal formé
+     * Constructeur pour le courriel mal construit
      *
      * @param msg
      *
@@ -164,11 +163,9 @@ String NOUVEAU_COURRIEL="\"Un nouveau courriel est reçu, ID: ";
      * @throws IOException
      */
     public TraiterCourriel(Message msg) throws MessagingException, IOException {
-        envoyerCourriel(Arrays.toString(msg.getFrom()), MAL_FORME, MAL_FORME_DESC);
-        BoiteNoire.enregistrer("Un courriel mal formé est reçu de " + Arrays.toString(msg.getFrom()), "info");
+        envoyerCourriel(Arrays.toString(msg.getFrom()), MAL_CONSTRUIT, MAL_CONSTRUIT_DESC);
+        BoiteNoire.enregistrer("Un courriel mal construit est recu de " + Arrays.toString(msg.getFrom()), "info");
     }
-
-    
 
     private void sauvegarderCourrielJson(Courriel courriel) throws IOException {
         Gson gson = new Gson();
@@ -182,14 +179,15 @@ String NOUVEAU_COURRIEL="\"Un nouveau courriel est reçu, ID: ";
     private String executerCommande(String commande) throws FileNotFoundException {
         String resultat = "";
         try {
+
             Runtime rt = Runtime.getRuntime();
-            Process pr = rt.exec(commande);
+            Process pr = rt.exec(SHELL + commande);
             BufferedReader input = new BufferedReader(new InputStreamReader(pr.getInputStream()));
             String ligne;
             while ((ligne = input.readLine()) != null) {
-                resultat += ligne + "\r\n";
+                resultat += ligne;
             }
-            resultat = "La commande " + commande + " a été exécutée avec le resultat suivant: " + resultat;
+            resultat = "La commande " + commande + " a ete executee avec le resultat suivant: \r\n" + resultat;
         } catch (IOException e) {
             resultat = e.toString();
         }
@@ -208,20 +206,14 @@ String NOUVEAU_COURRIEL="\"Un nouveau courriel est reçu, ID: ";
         mailServerProperties.put("mail.smtp.starttls.enable", "true");
         getMailSession = Session.getDefaultInstance(mailServerProperties, null);
         generateMailMessage = new MimeMessage(getMailSession);
-        generateMailMessage.addRecipient(Message.RecipientType.TO, new InternetAddress(adresseDestinataire));
+        generateMailMessage.setRecipients(Message.RecipientType.TO, InternetAddress.parse(adresseDestinataire));
         generateMailMessage.setSubject(sujet);
         generateMailMessage.setContent(contenu, "text/plain");
-        Transport transport = getMailSession.getTransport("smtp");
-        transport.connect("smtp.gmail.com", sc.getIdentifiant(), sc.getMotDePasse());
-        transport.sendMessage(generateMailMessage, generateMailMessage.getAllRecipients());
-        transport.close();
-    }
-
-    private int nbFichiersCourriel() throws IOException {
-
-        FilenameFilter filefilter = (File file, String filename) -> filename.toLowerCase().endsWith(".json") && filename.toLowerCase().startsWith(PREFIX_ID.toLowerCase());
-        File[] fList = new File(Params.REP_TRAVAIL).listFiles(filefilter);
-        return fList.length;
+        generateMailMessage.setFrom(sc.getAddresseCourriel());
+        try (Transport transport = getMailSession.getTransport("smtp")) {
+            transport.connect(sc.getSmtp(), sc.getIdentifiant(), sc.getMotDePasse());
+            transport.sendMessage(generateMailMessage, generateMailMessage.getAllRecipients());
+        }
     }
 
 }
