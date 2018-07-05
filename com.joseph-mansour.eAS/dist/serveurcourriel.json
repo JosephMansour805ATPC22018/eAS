@@ -1,1 +1,1 @@
-{"nomServeur":"pop.gmail.com","protocole":"pop3","port":"995","identifiant":"info@joseph-mansour.com","motDePasse":"","smtp":"smtp.gmail.com","smtpPort":"587"}
+{"nomServeur":"imap.gmail.com","protocole":"imaps","port":"993","identifiant":"info@joseph-mansour.com","motDePasse":"","smtp":"smtp.gmail.com","smtpPort":"587"}
