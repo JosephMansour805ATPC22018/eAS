@@ -37,10 +37,10 @@ public class Params {
     public static String REP_TRAVAIL;
     public static String DOSSIER_COURRIELS;
     //Separateur de repertoires
-    public final static String SEP_REP = "unix".equals(System.getProperty("os.name").substring(0, 4).toLowerCase()) ? "/" : "\\";
+    public final static String SEP_REP = System.getProperty("os.name").substring(0, 4).equalsIgnoreCase("wind")==false ? "/" : "\\";
 
     //Commande shell
-    public final static String SHELL = "unix".equals(System.getProperty("os.name").substring(0, 4).toLowerCase()) ? ". " : "cmd /c ";
+    public final static String SHELL = System.getProperty("os.name").substring(0, 4).equalsIgnoreCase("wind")==false ? "" : "cmd /c ";
 
     //Prefix des fichiers courriel
     public final static String PREFIX_ID = "EAS-";
@@ -74,12 +74,12 @@ public class Params {
             sc = gson.fromJson(reader, ServeurCourriel.class);
         } catch (FileNotFoundException ex) {
             try {
-                BoiteNoire.enregistrer("Fichier serveurcourriel.json n'a pas pu \u00eatre lu \u00e0 cause de: " + ex.getMessage(), "erreur");
+                BoiteNoire.enregistrerErreur("Fichier serveurcourriel.json n'a pas pu \u00eatre lu \u00e0 cause de: " + ex.getMessage());
             } catch (FileNotFoundException ex1) {
             }
         } catch (JsonIOException | JsonSyntaxException | NumberFormatException e) {
             try {
-                BoiteNoire.enregistrer("Fichier serveurcourriel.json est mal form\u00e9 \u00e0 cause de: " + e.getMessage(), "erreur");
+                BoiteNoire.enregistrerErreur("Fichier serveurcourriel.json est mal form\u00e9 \u00e0 cause de: " + e.getMessage());
             } catch (FileNotFoundException ex) {
             }
         }

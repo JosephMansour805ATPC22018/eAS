@@ -29,15 +29,47 @@ import java.util.Date;
  */
 public class BoiteNoire {
 
-    public static void enregistrer(String texte, String typetexte) throws FileNotFoundException {
-        // Rediriger le Printstream vers le fichier eAS_execution.log ou eAS_erreur.log
-        String nomFichier = "erreur".equals(typetexte.toLowerCase()) ? "eAS_erreur.log" : "eAS_execution.log";
-        PrintStream o = new PrintStream(new FileOutputStream(Params.REP_TRAVAIL + nomFichier, true));
+    /**
+     * Rediriger le Printstream vers le fichier eAS_execution.log
+     *
+     * @param texteInfo la description de l'info
+     * @throws FileNotFoundException
+     */
+    public static void enregistrerInfo(String texteInfo) throws FileNotFoundException {
+        PrintStream o = new PrintStream(new FileOutputStream(Params.REP_TRAVAIL + "eAS_execution.log", true));
         System.setOut(o);
         SimpleDateFormat formatter = new SimpleDateFormat("dd-MMM-yyyy HH:mm:ss");
         Date date = new Date();
         System.out.print(formatter.format(date) + " : ");
-        System.out.println(texte);
+        System.out.println(texteInfo);
+    }
+
+    /**
+     * Rediriger le Printstream vers le fichier eAS_erreur.log
+     *
+     * @param texteErreur la description de l'erreur
+     * @throws FileNotFoundException
+     */
+    public static void enregistrerErreur(String texteErreur) throws FileNotFoundException {
+        PrintStream o = new PrintStream(new FileOutputStream(Params.REP_TRAVAIL + "eAS_erreur.log", true));
+        System.setOut(o);
+        SimpleDateFormat formatter = new SimpleDateFormat("dd-MMM-yyyy HH:mm:ss");
+        Date date = new Date();
+        System.out.print(formatter.format(date) + " : ");
+        System.out.println(texteErreur);
+    }
+
+    /**
+     * Creer un fichier en utilisant le Printstream
+     *
+     * @param contenu contenu du fichier
+     * @param nomFichier le nom du fichier a creer
+     * @throws FileNotFoundException
+     */
+    public static void creerFichier(String contenu, String nomFichier) throws FileNotFoundException {
+        PrintStream o = new PrintStream(new FileOutputStream(Params.REP_TRAVAIL + nomFichier, false));
+        System.setOut(o);
+        System.out.println(contenu);
     }
 
 }

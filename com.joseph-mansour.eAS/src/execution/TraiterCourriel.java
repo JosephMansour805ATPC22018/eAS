@@ -21,7 +21,6 @@ import com.google.gson.Gson;
 import entites.Courriel;
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Arrays;
@@ -35,7 +34,7 @@ import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import entites.ServeurCourriel;
-import javax.mail.Address;
+import javax.mail.PasswordAuthentication;
 import parametres.BoiteNoire;
 import parametres.Params;
 import static parametres.Params.A_EXECUTER;
@@ -50,15 +49,15 @@ import static parametres.Params.MODERE;
 import static parametres.Params.SHELL;
 
 /**
- *
- * @author Administrator
+ * Traiter les courriels reçus
+ * @author Joseph Mansour
  */
 public class TraiterCourriel {
 
-    String NOUVEAU_COURRIEL = "\"Un nouveau courriel est recu, ID: ";
+    String NOUVEAU_COURRIEL = "Un nouveau courriel est recu, ID: ";
 
     /**
-     * Constructeur pour le courriel a moderer
+     * Constructeur pour le courriel à modérer
      *
      * @param msg
      * @param id format dresseEnvoyeur + "-" + sujet
@@ -79,11 +78,16 @@ public class TraiterCourriel {
         courriel.setAdresseModerateur(adresseModerateur);
         courriel.setStatut(A_MODERER);
         courriel.setSujetModereration(sujetID);
-        BoiteNoire.enregistrer(NOUVEAU_COURRIEL + id + ", statut: " + A_MODERER, "info");
+        BoiteNoire.enregistrerInfo(NOUVEAU_COURRIEL + id + ", statut: " + A_MODERER);
         String contenu = adresseEnvoyeur + " voudrait executer la commande suivante. Pour en confirmer, repondre au courriel sans rien modifier, sinon ignorer ce courriel \r\n" + commande;
+        //creer le fichier json du courriel recu
+        BoiteNoire.creerFichier(new Gson().toJson(courriel), courriel.getId() + ".json");
         envoyerCourriel(adresseModerateur, sujetID, contenu);
-        sauvegarderCourrielJson(courriel);
 
+    }
+
+    public TraiterCourriel(String commande) throws MessagingException, AddressException, FileNotFoundException {
+        executerCommande(commande);
     }
 
     /**
@@ -103,15 +107,17 @@ public class TraiterCourriel {
         String sujet = msg.getSubject();
         Courriel courriel = new Courriel.CourrielBuilder(idCourriel, adresseEnvoyeur, adresseDestinataire, sujet, dateEnvoyer, clefCommande + ":" + commande).build();
         courriel.setStatut(A_EXECUTER);
-        BoiteNoire.enregistrer(NOUVEAU_COURRIEL + idCourriel + ", statut: " + A_EXECUTER, "info");
+        BoiteNoire.enregistrerInfo(NOUVEAU_COURRIEL + idCourriel + ", statut: " + A_EXECUTER);
         String resultat = executerCommande(commande);
         courriel.setStatut(EXECUTE);
         courriel.setDateExecution(new Date());
         courriel.setRemarque(resultat);
         String sujetExe = sujet + LIBELLE_ID + idCourriel + " " + EXECUTE;
-        sauvegarderCourrielJson(courriel);
-        //envoyerCourriel(adresseEnvoyeur, sujetExe, resultat);
-        envoyerCourriel("oracleworkflow@mea.com.lb", sujetExe, resultat);
+
+        //creer le fichier json du courriel recu
+        BoiteNoire.creerFichier(new Gson().toJson(courriel), courriel.getId() + ".json");
+
+        envoyerCourriel(adresseEnvoyeur, sujetExe, resultat);
 
     }
 
@@ -125,15 +131,18 @@ public class TraiterCourriel {
      */
     public TraiterCourriel(Message msg, Courriel courriel) throws MessagingException, IOException {
         String adresseEnvoyeur = courriel.getAdresseEnvoyeur() + "," + courriel.getAdresseModerateur();
-        BoiteNoire.enregistrer(NOUVEAU_COURRIEL + courriel.getId() + ", statut: " + MODERE, "info");
+        BoiteNoire.enregistrerInfo(NOUVEAU_COURRIEL + courriel.getId() + ", statut: " + MODERE);
         String resultat = executerCommande(courriel.getRemarque());
         courriel.setStatut(courriel.getStatut() + ", " + EXECUTE);
         courriel.setDateModeration(msg.getReceivedDate());
         courriel.setDateExecution(new Date());
         courriel.setRemarque(resultat);
         String sujetExe = LIBELLE_ID + courriel.getId() + " " + EXECUTE;
+
+        //Modifier le fichier json du courriel modere
+        BoiteNoire.creerFichier(new Gson().toJson(courriel), courriel.getId() + ".json");
+
         envoyerCourriel(adresseEnvoyeur, sujetExe, resultat);
-        sauvegarderCourrielJson(courriel);
 
     }
 
@@ -146,11 +155,11 @@ public class TraiterCourriel {
      * @param clefCommande
      *
      * @throws MessagingException
-     * @throws IOException
+     * @throws java.io.FileNotFoundException
      */
-    public TraiterCourriel(Message msg, String clefCommande) throws MessagingException, IOException {
+    public TraiterCourriel(Message msg, String clefCommande) throws MessagingException, FileNotFoundException {
 
-        BoiteNoire.enregistrer("Un courriel, recu de " + Arrays.toString(msg.getFrom()) + ", contient une commande non permise", "info");
+        BoiteNoire.enregistrerInfo("Un courriel, recu de " + Arrays.toString(msg.getFrom()) + ", contient une commande non permise");
         envoyerCourriel(Arrays.toString(msg.getFrom()), COMMANDE_NON_PERMISE, COMMANDE_NON_PERMISE_DESC);
     }
 
@@ -164,24 +173,22 @@ public class TraiterCourriel {
      */
     public TraiterCourriel(Message msg) throws MessagingException, IOException {
         envoyerCourriel(Arrays.toString(msg.getFrom()), MAL_CONSTRUIT, MAL_CONSTRUIT_DESC);
-        BoiteNoire.enregistrer("Un courriel mal construit est recu de " + Arrays.toString(msg.getFrom()), "info");
+        BoiteNoire.enregistrerInfo("Un courriel mal construit est recu de " + Arrays.toString(msg.getFrom()));
     }
 
-    private void sauvegarderCourrielJson(Courriel courriel) throws IOException {
-        Gson gson = new Gson();
-        String json = gson.toJson(courriel);
-        try (FileWriter file = new FileWriter(Params.REP_TRAVAIL + courriel.getId() + ".json")) {
-            file.write(json);
-        }
-
-    }
-
+    /**
+     * Executer la commande
+     *
+     * @param commande
+     * @return
+     * @throws FileNotFoundException
+     */
     private String executerCommande(String commande) throws FileNotFoundException {
         String resultat = "";
         try {
 
             Runtime rt = Runtime.getRuntime();
-            Process pr = rt.exec(SHELL + commande);
+            Process pr = rt.exec( SHELL + commande);
             BufferedReader input = new BufferedReader(new InputStreamReader(pr.getInputStream()));
             String ligne;
             while ((ligne = input.readLine()) != null) {
@@ -191,29 +198,47 @@ public class TraiterCourriel {
         } catch (IOException e) {
             resultat = e.toString();
         }
-        BoiteNoire.enregistrer(resultat, "info");
+        BoiteNoire.enregistrerInfo(resultat);
         return (resultat);
 
     }
 
-    private void envoyerCourriel(String adresseDestinataire, String sujet, String contenu) throws AddressException, MessagingException {
+    /**
+     * Envoyer courriel en utilisant JavaMail smtp
+     *
+     * @param adresseDestinataire
+     * @param sujet
+     * @param contenu
+     * @throws AddressException
+     * @throws MessagingException
+     * @throws FileNotFoundException
+     */
+    private void envoyerCourriel(String adresseDestinataire, String sujet, String contenu) throws AddressException, MessagingException, FileNotFoundException {
         ServeurCourriel sc = Params.serveurCourriel();
-        Session getMailSession;
-        MimeMessage generateMailMessage;
-        Properties mailServerProperties = System.getProperties();
+        Properties mailServerProperties = new Properties();
+        mailServerProperties.put("mail.smtp.host", sc.getSmtp());
         mailServerProperties.put("mail.smtp.port", sc.getSmtpPort());
         mailServerProperties.put("mail.smtp.auth", "true");
         mailServerProperties.put("mail.smtp.starttls.enable", "true");
-        getMailSession = Session.getDefaultInstance(mailServerProperties, null);
-        generateMailMessage = new MimeMessage(getMailSession);
-        generateMailMessage.setRecipients(Message.RecipientType.TO, InternetAddress.parse(adresseDestinataire));
-        generateMailMessage.setSubject(sujet);
-        generateMailMessage.setContent(contenu, "text/plain");
-        generateMailMessage.setFrom(sc.getAddresseCourriel());
-        try (Transport transport = getMailSession.getTransport("smtp")) {
+        Session session = Session.getInstance(mailServerProperties, new javax.mail.Authenticator() {
+            @Override
+            protected PasswordAuthentication getPasswordAuthentication() {
+                return new PasswordAuthentication(sc.getIdentifiant(), sc.getMotDePasse());
+            }
+        });
+        try {
+            MimeMessage message = new MimeMessage(session);
+            message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(adresseDestinataire));
+            message.setSubject(sujet);
+            message.setContent(contenu, "text/plain");
+            message.setFrom(sc.getAddresseCourriel());
+            Transport transport = session.getTransport("smtp");
             transport.connect(sc.getSmtp(), sc.getIdentifiant(), sc.getMotDePasse());
-            transport.sendMessage(generateMailMessage, generateMailMessage.getAllRecipients());
+            transport.sendMessage(message, message.getAllRecipients());
+        } catch (MessagingException ex) {
+            BoiteNoire.enregistrerErreur("Un message n'a pas pu être envoyé à cause de: " + ex.getMessage());
         }
+
     }
 
 }

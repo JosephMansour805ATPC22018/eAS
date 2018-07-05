@@ -1,0 +1,4 @@
+[
+	{"clefCommande":"dire","commande":"dir e:"},
+	{"clefCommande":"scq","commande":"scquery"}
+]
