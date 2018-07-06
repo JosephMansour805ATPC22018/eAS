@@ -18,7 +18,7 @@
 package entites;
 
 /**
- *
+ * Contient l'adresse couriel et sujet de l'envoyeur agrée et l'adresse courriel du modérateur (s'il y en a)
  * @author Joseph Mansour
  */
 public class EnvoyeurAgree {

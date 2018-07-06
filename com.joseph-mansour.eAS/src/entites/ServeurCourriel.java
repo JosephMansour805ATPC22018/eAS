@@ -18,7 +18,7 @@
 package entites;
 
 /**
- *
+ * Contient les paramêtres du serveur courriel
  * @author Joseph Mansour
  */
 public class ServeurCourriel {

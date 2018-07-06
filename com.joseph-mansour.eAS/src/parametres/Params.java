@@ -28,7 +28,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 
 /**
- *
+ * Définir les variables globales
  * @author Joseph Mansour
  */
 public class Params {
@@ -37,10 +37,10 @@ public class Params {
     public static String REP_TRAVAIL;
     public static String DOSSIER_COURRIELS;
     //Separateur de repertoires
-    public final static String SEP_REP = System.getProperty("os.name").substring(0, 4).equalsIgnoreCase("wind")==false ? "/" : "\\";
+    public final static String SEP_REP = System.getProperty("os.name").substring(0, 4).equalsIgnoreCase("wind") == false ? "/" : "\\";
 
     //Commande shell
-    public final static String SHELL = System.getProperty("os.name").substring(0, 4).equalsIgnoreCase("wind")==false ? "" : "cmd /c ";
+    public final static String SHELL = System.getProperty("os.name").substring(0, 4).equalsIgnoreCase("wind") == false ? "" : "cmd /c ";
 
     //Prefix des fichiers courriel
     public final static String PREFIX_ID = "EAS-";
@@ -54,17 +54,22 @@ public class Params {
 
     public final static String A_EXECUTER = "A executer";
 
-    public final static String MAL_CONSTRUIT = "Contenu mal construit";
-    public final static String MAL_CONSTRUIT_DESC = "Le contenu de votre courriel est mal construit";
+    public final static String CONTENU_MAL_CONSTRUIT = "Contenu mal construit";
+    public final static String CONTENU_MAL_CONSTRUIT_DESC = "Le contenu de votre courriel doit etre de format texte brut, sans pieces jointes et contenir exactement un seul mot ";
 
     public final static String COMMANDE_NON_PERMISE = "Commande non permise";
-    public final static String COMMANDE_NON_PERMISE_DESC = "La commande suivante n'est pas permise:\r\n";
+    public final static String COMMANDE_NON_PERMISE_DESC = "La commande que vous essayez executer ne fait pas partie de la liste des commandes permises (affichee ci-dessous)  :\r\n";
 
     public final static String RENVOYER = "\r\n" + String.format("%44s", "Renvoyer le courriel");
     public final static String PAS_RENVOYER = "\r\n" + String.format("%60s", "Pas de besoin de renvoyer le courriel");
 
-    //Lire les informations relatives au Serveur courriel du fichier serveurCourriel.json
-    public final static ServeurCourriel serveurCourriel() {
+    /**
+     * Lire les informations relatives au Serveur courriel du fichier serveurCourriel.json
+     * @return
+     * @throws FileNotFoundException si le fichier n'existe pas
+     */
+
+    public final static ServeurCourriel serveurCourriel() throws FileNotFoundException {
         ServeurCourriel sc = null;
         BufferedReader reader = null;
         File file = new File(Params.REP_TRAVAIL + "serveurcourriel.json");
@@ -73,15 +78,9 @@ public class Params {
             Gson gson = new GsonBuilder().create();
             sc = gson.fromJson(reader, ServeurCourriel.class);
         } catch (FileNotFoundException ex) {
-            try {
-                BoiteNoire.enregistrerErreur("Fichier serveurcourriel.json n'a pas pu \u00eatre lu \u00e0 cause de: " + ex.getMessage());
-            } catch (FileNotFoundException ex1) {
-            }
+            BoiteNoire.enregistrerErreur("Fichier serveurcourriel.json n'a pas pu être lu à cause de: " + ex.getMessage());
         } catch (JsonIOException | JsonSyntaxException | NumberFormatException e) {
-            try {
-                BoiteNoire.enregistrerErreur("Fichier serveurcourriel.json est mal form\u00e9 \u00e0 cause de: " + e.getMessage());
-            } catch (FileNotFoundException ex) {
-            }
+            BoiteNoire.enregistrerErreur("Fichier serveurcourriel.json est mal construit à cause de: " + e.getMessage());
         }
         return sc;
     }

@@ -29,7 +29,7 @@ import static parametres.Params.DOSSIER_COURRIELS;
 import static parametres.Params.serveurCourriel;
 
 /**
- * La fonction principale qui appelle la classe ValiderCourriels
+ * La classe principale qui fait appel à la classe ValiderCourriels en passant les attributs du serveur courriel
  *
  * @author Joseph Mansour
  */
@@ -44,6 +44,6 @@ public class ConsulterCourriels {
         DOSSIER_COURRIELS = args.length < 2 ? "Inbox" : args[1];
 
         //Se connecter au serveur courriel pour valider les courriels
-          //new ValiderCourriels(serveurCourriel());
+          new ValiderCourriels(serveurCourriel());
     }
 }

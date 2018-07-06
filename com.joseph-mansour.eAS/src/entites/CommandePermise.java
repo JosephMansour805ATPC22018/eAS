@@ -18,19 +18,21 @@
 package entites;
 
 /**
- *
+ * Contient la commande permise d'être exécutée et son id 
  * @author Joseph Mansour
  */
 public class CommandePermise {
-    private  String clefCommande;
-    private  String commande;
 
-    public String getClefCommande() {
-        return clefCommande;
+    private String idCommande;
+    private String commande;
+  
+
+    public String getIdCommande() {
+        return idCommande;
     }
 
     public String getCommande() {
         return commande;
     }
-    
+
 }

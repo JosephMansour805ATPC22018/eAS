@@ -21,7 +21,7 @@ import com.google.gson.Gson;
 import java.util.Date;
 
 /**
- * 
+ * Contient tous les attributs d'un courriel valide
  * @author Joseph MAnsour
  */
 public class Courriel {

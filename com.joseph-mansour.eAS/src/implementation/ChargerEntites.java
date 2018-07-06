@@ -82,7 +82,7 @@ public class ChargerEntites {
             }.getType();
             listeCommandesPermises = new Gson().fromJson(reader, listType);
             for (CommandePermise o : listeCommandesPermises) {
-                cpsMap.put(o.getClefCommande().toLowerCase(), o.getCommande());
+                cpsMap.put(o.getIdCommande().toLowerCase(), o.getCommande());
             }
         } catch (FileNotFoundException ex) {
             try {

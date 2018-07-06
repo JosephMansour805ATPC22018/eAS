@@ -24,28 +24,29 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /**
- *
+ * Enregistrer les traces et les erreurs de l'exécution
+ * Créer des fichier
  * @author Joseph Mansour
  */
 public class BoiteNoire {
 
     /**
-     * Rediriger le Printstream vers le fichier eAS_execution.log
+     * Enregistrer le journal des exécutions dans le fichier eAS_execution.log
      *
-     * @param texteInfo la description de l'info
+     * @param entree la description d'une entrée d'un journal
      * @throws FileNotFoundException
      */
-    public static void enregistrerInfo(String texteInfo) throws FileNotFoundException {
+    public static void enregistrerJournal(String entree) throws FileNotFoundException {
         PrintStream o = new PrintStream(new FileOutputStream(Params.REP_TRAVAIL + "eAS_execution.log", true));
         System.setOut(o);
         SimpleDateFormat formatter = new SimpleDateFormat("dd-MMM-yyyy HH:mm:ss");
         Date date = new Date();
         System.out.print(formatter.format(date) + " : ");
-        System.out.println(texteInfo);
+        System.out.println(entree);
     }
 
     /**
-     * Rediriger le Printstream vers le fichier eAS_erreur.log
+     * Enregistrer les erreurs des exécutions dans le fichier eAS_erreur.log
      *
      * @param texteErreur la description de l'erreur
      * @throws FileNotFoundException

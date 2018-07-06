@@ -43,7 +43,7 @@ import parametres.Params;
 import static parametres.Params.A_EXECUTER;
 import static parametres.Params.A_MODERER;
 import static parametres.Params.LIBELLE_ID;
-import static parametres.Params.MAL_CONSTRUIT;
+import static parametres.Params.CONTENU_MAL_CONSTRUIT;
 import static parametres.Params.MODERE;
 import static parametres.Params.PAS_RENVOYER;
 import static parametres.Params.COMMANDE_NON_PERMISE;
@@ -51,8 +51,9 @@ import static parametres.Params.DOSSIER_COURRIELS;
 import static parametres.Params.PREFIX_ID;
 
 /**
- * Verifier si les envoyeurs des nouveaux courriels sont agrees. Appeller la
- * Classe TraiterCourriel en fournissant le courriel comme paramètre
+ * Identifier les courriels valides (i.e. envoyés par les envoyeurs agrées) et
+ * puis les catégoriser pour les traiter par conséquent
+ *
  *
  * @author Joseph Mansour
  */
@@ -65,9 +66,9 @@ public final class ValiderCourriels {
      * @param serveurCourriel contient les infos du serveur courriel
      * @throws java.io.FileNotFoundException si serveurcourriel.json n'existe
      * pas
-     * @throws javax.mail.NoSuchProviderException si le serveur courriel n'es
+     * @throws javax.mail.NoSuchProviderException si le serveur courriel n'est
      * pas disponible
-     * @throws java.io.IOException si le store du serveur courriel n'es pas
+     * @throws java.io.IOException si le store du serveur courriel n'est pas
      * disponible
      * @throws java.text.ParseException si serveurcourriel.json est mal
      * construit
@@ -77,6 +78,20 @@ public final class ValiderCourriels {
 
     }
 
+    /**
+     * Se connecter au serveur courriel
+     *
+     * @param nomserveur
+     * @param protocole
+     * @param port
+     * @param identifiant
+     * @param motdepasse
+     * @throws FileNotFoundException
+     * @throws NoSuchProviderException
+     * @throws ParseException
+     * @throws IOException
+     * @throws MessagingException
+     */
     void connecterServeurCourriel(String nomserveur, String protocole, int port, String identifiant, String motdepasse) throws FileNotFoundException, NoSuchProviderException, ParseException, IOException, MessagingException {
         Store store = null;
 
@@ -103,7 +118,7 @@ public final class ValiderCourriels {
 
             if (store.isConnected()) {
                 store.close();
-                BoiteNoire.enregistrerInfo("La connexion au serveur courriel est proprement terminee ");
+                BoiteNoire.enregistrerJournal("La connexion au serveur courriel est proprement terminee ");
             }
         }
     }
@@ -123,7 +138,7 @@ public final class ValiderCourriels {
 
         Folder dossier = store.getFolder(DOSSIER_COURRIELS);
         dossier.open(Folder.READ_WRITE);
-        BoiteNoire.enregistrerInfo("La connexion au serveur courriel est établie et le dossier " + dossier.toString() + " est ouverte");
+        BoiteNoire.enregistrerJournal("La connexion au serveur courriel est établie et le dossier " + dossier.toString() + " est ouverte");
         int nb = nbFichiersCourriel();
         final String SEPARATEUR = "::";
         //Construire la liste des envoyeurs agres
@@ -137,7 +152,7 @@ public final class ValiderCourriels {
             public boolean match(Message message) {
                 Boolean envoyeurAgree = false;
                 Boolean courrielModere = false;
-
+                Boolean contenuValide;
                 try {
 
                     //Ignorer les courriels dejà repondus ou conteneant plus qu'un texte simple
@@ -151,11 +166,10 @@ public final class ValiderCourriels {
                     String eaID = (envoyeur + "-" + sujet).toLowerCase();
                     String numMessage = Integer.toString(message.getMessageNumber());
                     if (envoyeurAgree = easMap.containsKey(eaID)) {
-                        //Verifier si le contenu du courriel contient une clefCommande permise
-                        if (message.isMimeType("text/plain")) {
-
-                            String clefCommande = message.getContent().toString().trim().toLowerCase();
-
+                        String clefCommande = message.getContent().toString().trim().toLowerCase();
+                        //Verifier si le contenu du courriel contient un seul mot de mode texte brut
+                        contenuValide = message.isMimeType("text/plain") && !clefCommande.contains(" ") && !clefCommande.contains(System.getProperty("line.separator")) && !clefCommande.isEmpty();
+                        if (contenuValide) {
                             if (commandespermisesMap.containsKey(clefCommande)) {
                                 String commande = commandespermisesMap.get(clefCommande);
 
@@ -167,11 +181,14 @@ public final class ValiderCourriels {
                                 }
 
                             } else {
-                                infoSupplCourriel.put(numMessage, COMMANDE_NON_PERMISE + SEPARATEUR + clefCommande);
+                                infoSupplCourriel.put(numMessage, COMMANDE_NON_PERMISE + SEPARATEUR + envoyeur + SEPARATEUR + clefCommande + SEPARATEUR + commandespermisesMap.keySet());
 
                             }
-                            return true;
+
+                        } else {
+                            infoSupplCourriel.put(numMessage, CONTENU_MAL_CONSTRUIT + SEPARATEUR + envoyeur);
                         }
+                        return true;
                     }
 
                     //Voir si un courriel existant a ete modere
@@ -204,18 +221,18 @@ public final class ValiderCourriels {
 
         //Iterer à travers le dossier des courriels valides
         Message[] msgs = dossier.search(searchTerm);
-        BoiteNoire.enregistrerInfo("Nombre total de courriels valides est " + msgs.length);
+        BoiteNoire.enregistrerJournal("Nombre total de courriels valides est " + msgs.length);
         for (Message msg : msgs) {
             String idCourriel;
             String numMessage = Integer.toString(msg.getMessageNumber());
             String[] infoSuppl = infoSupplCourriel.get(numMessage).split(SEPARATEUR);
             TraiterCourriel traiterCourriel;
             switch (infoSuppl[0]) {
-                case MAL_CONSTRUIT:
-                    traiterCourriel = new TraiterCourriel(msg);
+                case CONTENU_MAL_CONSTRUIT:
+                    traiterCourriel = new TraiterCourriel(infoSuppl[1]);
                     break;
                 case COMMANDE_NON_PERMISE:
-                    traiterCourriel = new TraiterCourriel(msg, infoSuppl[1]);
+                    traiterCourriel = new TraiterCourriel(infoSuppl[1], infoSuppl[2], infoSuppl[3]);
                     break;
                 case A_MODERER:
                     nb += 1;
@@ -234,12 +251,16 @@ public final class ValiderCourriels {
                     traiterCourriel = new TraiterCourriel(msg, courriel);
                     break;
             }
-            //msg.setFlag(Flags.Flag.ANSWERED, true);
-            //BoiteNoire.enregistrerInfo("Tous les courriels valides sont marqués ANSWERED");
+            msg.setFlag(Flags.Flag.ANSWERED, true);
+            BoiteNoire.enregistrerJournal("Tous les courriels valides sont marqués ANSWERED");
         }
     }
 
-    private static int nbFichiersCourriel() throws IOException {
+    /**
+     *
+     * @return le nombre de fichiers couriel déjà existents      *
+     */
+    private static int nbFichiersCourriel() {
 
         FilenameFilter filefilter = (File file, String filename) -> filename.toLowerCase().endsWith(".json") && filename.toLowerCase().startsWith(PREFIX_ID.toLowerCase());
         File[] fList = new File(Params.REP_TRAVAIL).listFiles(filefilter);

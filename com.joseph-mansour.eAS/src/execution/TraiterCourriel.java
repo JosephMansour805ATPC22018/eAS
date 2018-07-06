@@ -23,7 +23,6 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.Properties;
 import javax.mail.Message;
@@ -43,13 +42,13 @@ import static parametres.Params.COMMANDE_NON_PERMISE;
 import static parametres.Params.COMMANDE_NON_PERMISE_DESC;
 import static parametres.Params.EXECUTE;
 import static parametres.Params.LIBELLE_ID;
-import static parametres.Params.MAL_CONSTRUIT;
-import static parametres.Params.MAL_CONSTRUIT_DESC;
+import static parametres.Params.CONTENU_MAL_CONSTRUIT;
+import static parametres.Params.CONTENU_MAL_CONSTRUIT_DESC;
 import static parametres.Params.MODERE;
 import static parametres.Params.SHELL;
 
 /**
- * Traiter les courriels reçus
+ * Traiter les courriels valides selon leur catégorie. Il' y en a 5: A exécuter, A modérer, Modéré, Mal construit et Contenant une commande non permise
  * @author Joseph Mansour
  */
 public class TraiterCourriel {
@@ -60,12 +59,12 @@ public class TraiterCourriel {
      * Constructeur pour le courriel à modérer
      *
      * @param msg
-     * @param id format dresseEnvoyeur + "-" + sujet
-     * @param adresseModerateur
-     * @param clefCommande
-     * @param commande
-     * @throws MessagingException
-     * @throws IOException
+     * @param id de format  adresseEnvoyeur + "-" + sujet
+     * @param adresseModerateur addresse courriel du modérateur
+     * @param clefCommande la clef de commande à exécuter
+     * @param commande la commande à exécuter
+     * @throws MessagingException si le message ne pouvait pas être envoyé
+     * @throws IOException si le fichier ne pouvait pas être créé
      */
     public TraiterCourriel(Message msg, String id, String adresseModerateur, String clefCommande, String commande) throws MessagingException, IOException {
         String adresseEnvoyeur = ((InternetAddress) msg.getFrom()[0]).getAddress();
@@ -78,7 +77,7 @@ public class TraiterCourriel {
         courriel.setAdresseModerateur(adresseModerateur);
         courriel.setStatut(A_MODERER);
         courriel.setSujetModereration(sujetID);
-        BoiteNoire.enregistrerInfo(NOUVEAU_COURRIEL + id + ", statut: " + A_MODERER);
+        BoiteNoire.enregistrerJournal(NOUVEAU_COURRIEL + id + ", statut: " + A_MODERER);
         String contenu = adresseEnvoyeur + " voudrait executer la commande suivante. Pour en confirmer, repondre au courriel sans rien modifier, sinon ignorer ce courriel \r\n" + commande;
         //creer le fichier json du courriel recu
         BoiteNoire.creerFichier(new Gson().toJson(courriel), courriel.getId() + ".json");
@@ -86,18 +85,14 @@ public class TraiterCourriel {
 
     }
 
-    public TraiterCourriel(String commande) throws MessagingException, AddressException, FileNotFoundException {
-        executerCommande(commande);
-    }
-
     /**
-     * Constructeur pour le courriel a executer
+     * Constructeur pour le courriel à exécuter
      *
      * @param msg courriel recu a traiter
      * @param idCourriel
-     * @param clefCommande
-     * @param commande
-     * @throws MessagingException
+     * @param clefCommande la clef de commande à exécuter
+     * @param commande la commande à exécuter
+     * @throws MessagingException 
      * @throws IOException
      */
     public TraiterCourriel(Message msg, String idCourriel, String clefCommande, String commande) throws MessagingException, IOException {
@@ -107,7 +102,7 @@ public class TraiterCourriel {
         String sujet = msg.getSubject();
         Courriel courriel = new Courriel.CourrielBuilder(idCourriel, adresseEnvoyeur, adresseDestinataire, sujet, dateEnvoyer, clefCommande + ":" + commande).build();
         courriel.setStatut(A_EXECUTER);
-        BoiteNoire.enregistrerInfo(NOUVEAU_COURRIEL + idCourriel + ", statut: " + A_EXECUTER);
+        BoiteNoire.enregistrerJournal(NOUVEAU_COURRIEL + idCourriel + ", statut: " + A_EXECUTER);
         String resultat = executerCommande(commande);
         courriel.setStatut(EXECUTE);
         courriel.setDateExecution(new Date());
@@ -122,16 +117,16 @@ public class TraiterCourriel {
     }
 
     /**
-     * Constructeur pour le courriel modere a executer
+     * Constructeur pour le courriel modéré à exécuter
      *
      * @param msg courriel recu a traiter
-     * @param courriel contient les infos du courriel modere
+     * @param courriel contient les infos du courriel modéré
      * @throws MessagingException
      * @throws IOException
      */
     public TraiterCourriel(Message msg, Courriel courriel) throws MessagingException, IOException {
         String adresseEnvoyeur = courriel.getAdresseEnvoyeur() + "," + courriel.getAdresseModerateur();
-        BoiteNoire.enregistrerInfo(NOUVEAU_COURRIEL + courriel.getId() + ", statut: " + MODERE);
+        BoiteNoire.enregistrerJournal(NOUVEAU_COURRIEL + courriel.getId() + ", statut: " + MODERE);
         String resultat = executerCommande(courriel.getRemarque());
         courriel.setStatut(courriel.getStatut() + ", " + EXECUTE);
         courriel.setDateModeration(msg.getReceivedDate());
@@ -139,7 +134,7 @@ public class TraiterCourriel {
         courriel.setRemarque(resultat);
         String sujetExe = LIBELLE_ID + courriel.getId() + " " + EXECUTE;
 
-        //Modifier le fichier json du courriel modere
+        //Modifier le fichier json du courriel modéré
         BoiteNoire.creerFichier(new Gson().toJson(courriel), courriel.getId() + ".json");
 
         envoyerCourriel(adresseEnvoyeur, sujetExe, resultat);
@@ -151,29 +146,30 @@ public class TraiterCourriel {
      * permise
      *
      *
-     * @param msg
+     * @param adresseEnvoyeur
      * @param clefCommande
+     * @param listeDesCommandesPermises
      *
      * @throws MessagingException
      * @throws java.io.FileNotFoundException
      */
-    public TraiterCourriel(Message msg, String clefCommande) throws MessagingException, FileNotFoundException {
+    public TraiterCourriel(String adresseEnvoyeur, String clefCommande, String listeDesCommandesPermises) throws MessagingException, FileNotFoundException {
 
-        BoiteNoire.enregistrerInfo("Un courriel, recu de " + Arrays.toString(msg.getFrom()) + ", contient une commande non permise");
-        envoyerCourriel(Arrays.toString(msg.getFrom()), COMMANDE_NON_PERMISE, COMMANDE_NON_PERMISE_DESC);
+        BoiteNoire.enregistrerJournal("Un courriel, recu de " + adresseEnvoyeur + ", contient une commande non permise ("+clefCommande+")" );
+        envoyerCourriel(adresseEnvoyeur, COMMANDE_NON_PERMISE, COMMANDE_NON_PERMISE_DESC+clefCommande+listeDesCommandesPermises);
     }
 
     /**
      * Constructeur pour le courriel mal construit
      *
-     * @param msg
+     * @param adresseEnvoyeur
      *
      * @throws MessagingException
      * @throws IOException
      */
-    public TraiterCourriel(Message msg) throws MessagingException, IOException {
-        envoyerCourriel(Arrays.toString(msg.getFrom()), MAL_CONSTRUIT, MAL_CONSTRUIT_DESC);
-        BoiteNoire.enregistrerInfo("Un courriel mal construit est recu de " + Arrays.toString(msg.getFrom()));
+    public TraiterCourriel(String adresseEnvoyeur) throws MessagingException, IOException {
+        envoyerCourriel(adresseEnvoyeur, CONTENU_MAL_CONSTRUIT, CONTENU_MAL_CONSTRUIT_DESC);
+        BoiteNoire.enregistrerJournal("Un courriel mal construit est recu de " + adresseEnvoyeur);
     }
 
     /**
@@ -198,7 +194,7 @@ public class TraiterCourriel {
         } catch (IOException e) {
             resultat = e.toString();
         }
-        BoiteNoire.enregistrerInfo(resultat);
+        BoiteNoire.enregistrerJournal(resultat);
         return (resultat);
 
     }
