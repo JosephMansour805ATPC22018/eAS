@@ -1,4 +1,4 @@
 [
-	{"clefCommande":"hn","commande":"hostname"},
-	{"clefCommande":"ps","commande":"ps -ef"}
+	{"idCommande":"hn","commande":"hostname"},
+	{"idCommande":"ps","commande":"ps -ef"}
 ]
