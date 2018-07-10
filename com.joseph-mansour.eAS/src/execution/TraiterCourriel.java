@@ -156,7 +156,7 @@ public class TraiterCourriel {
     public TraiterCourriel(String adresseEnvoyeur, String clefCommande, String listeDesCommandesPermises) throws MessagingException, FileNotFoundException {
 
         BoiteNoire.enregistrerJournal("Un courriel, recu de " + adresseEnvoyeur + ", contient une commande non permise ("+clefCommande+")" );
-        envoyerCourriel(adresseEnvoyeur, COMMANDE_NON_PERMISE, COMMANDE_NON_PERMISE_DESC+clefCommande+listeDesCommandesPermises);
+        envoyerCourriel(adresseEnvoyeur, COMMANDE_NON_PERMISE, clefCommande+COMMANDE_NON_PERMISE_DESC+listeDesCommandesPermises);
     }
 
     /**

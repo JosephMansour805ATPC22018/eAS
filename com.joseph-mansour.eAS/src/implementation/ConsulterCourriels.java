@@ -29,7 +29,8 @@ import static parametres.Params.DOSSIER_COURRIELS;
 import static parametres.Params.serveurCourriel;
 
 /**
- * La classe principale qui fait appel à la classe ValiderCourriels en passant les attributs du serveur courriel
+ * La classe principale qui fait appel à la classe ValiderCourriels en passant
+ * les attributs du serveur courriel
  *
  * @author Joseph Mansour
  */
@@ -38,12 +39,12 @@ public class ConsulterCourriels {
     public static void main(String[] args) throws NoSuchProviderException, ParseException, IOException, FileNotFoundException, MessagingException {
 
         //Assigner une valeur au repertoire du travail
-        REP_TRAVAIL = args.length < 1 ? "." + SEP_REP : args[0];
+        REP_TRAVAIL = args.length < 1 ? "." + SEP_REP : args[0].substring(args[0].length()-1,args[0].length()).equals(SEP_REP) ? args[0]:args[0]+SEP_REP;
 
         //Assigner une valeur au dossier des courriels
         DOSSIER_COURRIELS = args.length < 2 ? "Inbox" : args[1];
-
+        
         //Se connecter au serveur courriel pour valider les courriels
-          new ValiderCourriels(serveurCourriel());
+        new ValiderCourriels(serveurCourriel());
     }
 }

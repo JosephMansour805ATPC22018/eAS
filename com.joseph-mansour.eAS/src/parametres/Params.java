@@ -58,7 +58,7 @@ public class Params {
     public final static String CONTENU_MAL_CONSTRUIT_DESC = "Le contenu de votre courriel doit etre de format texte brut, sans pieces jointes et contenir exactement un seul mot ";
 
     public final static String COMMANDE_NON_PERMISE = "Commande non permise";
-    public final static String COMMANDE_NON_PERMISE_DESC = "La commande que vous essayez executer ne fait pas partie de la liste des commandes permises (affichee ci-dessous)  :\r\n";
+    public final static String COMMANDE_NON_PERMISE_DESC = " ne fait pas partie de la liste des commandes permises (affichee ci-dessous)  :\r\n";
 
     public final static String RENVOYER = "\r\n" + String.format("%44s", "Renvoyer le courriel");
     public final static String PAS_RENVOYER = "\r\n" + String.format("%60s", "Pas de besoin de renvoyer le courriel");
@@ -79,8 +79,10 @@ public class Params {
             sc = gson.fromJson(reader, ServeurCourriel.class);
         } catch (FileNotFoundException ex) {
             BoiteNoire.enregistrerErreur("Fichier serveurcourriel.json n'a pas pu être lu à cause de: " + ex.getMessage());
+            return null;
         } catch (JsonIOException | JsonSyntaxException | NumberFormatException e) {
             BoiteNoire.enregistrerErreur("Fichier serveurcourriel.json est mal construit à cause de: " + e.getMessage());
+            return null;
         }
         return sc;
     }

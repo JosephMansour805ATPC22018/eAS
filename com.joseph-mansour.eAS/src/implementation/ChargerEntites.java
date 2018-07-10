@@ -58,12 +58,12 @@ public class ChargerEntites {
             }
         } catch (FileNotFoundException ex) {
             try {
-                BoiteNoire.enregistrerErreur("Fichier envoyeursagrees.json n'a pas pu \u00eatre lu \u00e0 cause de: " + ex.getMessage());
+                BoiteNoire.enregistrerErreur("Fichier envoyeursagrees.json n'a pas pu êre lu à cause de: " + ex.getMessage());
             } catch (FileNotFoundException ex1) {
             }
         } catch (JsonIOException | JsonSyntaxException | NumberFormatException e) {
             try {
-                BoiteNoire.enregistrerErreur("Fichier envoyeursagrees.json est mal form\u00e9 \u00e0 cause de: " + e.getMessage());
+                BoiteNoire.enregistrerErreur("Fichier envoyeursagrees.json est mal construit à cause de: " + e.getMessage());
             } catch (FileNotFoundException ex) {
             }
         }
@@ -86,12 +86,12 @@ public class ChargerEntites {
             }
         } catch (FileNotFoundException ex) {
             try {
-                BoiteNoire.enregistrerErreur("Fichier commandespermises.json n'a pas pu \u00eatre lu \u00e0 cause de: " + ex.getMessage());
+                BoiteNoire.enregistrerErreur("Fichier commandespermises.json n'a pas pu êre lu à cause de: " + ex.getMessage());
             } catch (FileNotFoundException ex1) {
             }
         } catch (JsonIOException | JsonSyntaxException | NumberFormatException e) {
             try {
-                BoiteNoire.enregistrerErreur("Fichier commandespermises.json est mal form\u00e9 \u00e0 cause de: " + e.getMessage());
+                BoiteNoire.enregistrerErreur("Fichier commandespermises.json est mal construit à cause de: " + e.getMessage());
             } catch (FileNotFoundException ex) {
             }
         }
