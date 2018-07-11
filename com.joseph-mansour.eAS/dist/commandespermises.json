@@ -1,6 +1,6 @@
 [
-	{"idCommande":"stop_ssh","commande":"sudo systemctl stop ssh"},
-	{"idCommande":"start_ssh","commande":"sudo systemctl start ssh"},
-	{"idCommande":"stop_apache","commande":"sudo systemctl stop apache2"},
-	{"idCommande":"start_apache","commande":"sudo systemctl start apache2"}
+	{"idCommande":"stop_ssh","commande":"stop_ssh.sh"},
+	{"idCommande":"start_ssh","commande":"start_ssh.sh"},
+	{"idCommande":"stop_apache","commande":"stop_apache.sh"},
+	{"idCommande":"start_apache","commande":"start_apache.sh"}
 ]
