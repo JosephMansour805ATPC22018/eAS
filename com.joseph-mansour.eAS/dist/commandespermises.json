@@ -1,4 +1,6 @@
 [
-	{"idCommande":"hn","commande":"hostname"},
-	{"idCommande":"ps","commande":"ps -ef"}
+	{"idCommande":"stop_ssh","commande":"sudo systemctl stop ssh"},
+	{"idCommande":"start_ssh","commande":"sudo systemctl start ssh"},
+	{"idCommande":"stop_apache","commande":"sudo systemctl stop apache2"},
+	{"idCommande":"start_apache","commande":"sudo systemctl start apache2"}
 ]
