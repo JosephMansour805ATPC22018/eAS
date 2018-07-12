@@ -54,7 +54,7 @@ import static parametres.Params.SHELL;
  */
 public class TraiterCourriel {
 
-    String NOUVEAU_COURRIEL = "Un nouveau courriel est recu, ID: ";
+    String NOUVEAU_COURRIEL = "Un nouveau courriel est reçu, ID: ";
 
     /**
      * Constructeur pour le courriel à modérer
@@ -80,7 +80,7 @@ public class TraiterCourriel {
         courriel.setSujetModereration(sujetID);
         BoiteNoire.enregistrerJournal(NOUVEAU_COURRIEL + id + ", statut: " + A_MODERER);
         String contenu = adresseEnvoyeur + " voudrait executer la commande suivante. Pour en confirmer, repondre au courriel sans rien modifier, sinon ignorer ce courriel \r\n" + commande;
-        //creer le fichier json du courriel recu
+        //creer le fichier json du courriel reçu
         BoiteNoire.creerFichier(new Gson().toJson(courriel), courriel.getId() + ".json");
         envoyerCourriel(adresseModerateur, sujetID, contenu);
 
@@ -89,7 +89,7 @@ public class TraiterCourriel {
     /**
      * Constructeur pour le courriel à exécuter
      *
-     * @param msg courriel recu a traiter
+     * @param msg courriel reçu a traiter
      * @param idCourriel
      * @param clefCommande la clef de commande à exécuter
      * @param commande la commande à exécuter
@@ -110,7 +110,7 @@ public class TraiterCourriel {
         courriel.setRemarque(resultat);
         String sujetExe = sujet + LIBELLE_ID + idCourriel + " " + EXECUTE;
 
-        //creer le fichier json du courriel recu
+        //creer le fichier json du courriel reçu
         BoiteNoire.creerFichier(new Gson().toJson(courriel), courriel.getId() + ".json");
 
         envoyerCourriel(adresseEnvoyeur, sujetExe, resultat);
@@ -120,7 +120,7 @@ public class TraiterCourriel {
     /**
      * Constructeur pour le courriel modéré à exécuter
      *
-     * @param msg courriel recu a traiter
+     * @param msg courriel reçu a traiter
      * @param courriel contient les infos du courriel modéré
      * @throws MessagingException
      * @throws IOException
@@ -156,7 +156,7 @@ public class TraiterCourriel {
      */
     public TraiterCourriel(String adresseEnvoyeur, String clefCommande, String listeDesCommandesPermises) throws MessagingException, FileNotFoundException {
 
-        BoiteNoire.enregistrerJournal("Un courriel, recu de " + adresseEnvoyeur + ", contient une commande non permise ("+clefCommande+")" );
+        BoiteNoire.enregistrerJournal("Un courriel, reçu de " + adresseEnvoyeur + ", contient une commande non permise ("+clefCommande+")" );
         envoyerCourriel(adresseEnvoyeur, COMMANDE_NON_PERMISE, clefCommande+COMMANDE_NON_PERMISE_DESC+listeDesCommandesPermises);
     }
 
@@ -170,7 +170,7 @@ public class TraiterCourriel {
      */
     public TraiterCourriel(String adresseEnvoyeur) throws MessagingException, IOException {
         envoyerCourriel(adresseEnvoyeur, CONTENU_MAL_CONSTRUIT, CONTENU_MAL_CONSTRUIT_DESC);
-        BoiteNoire.enregistrerJournal("Un courriel mal construit est recu de " + adresseEnvoyeur);
+        BoiteNoire.enregistrerJournal("Un courriel mal construit est reçu de " + adresseEnvoyeur);
     }
 
     /**
@@ -191,7 +191,7 @@ public class TraiterCourriel {
             while ((ligne = input.readLine()) != null) {
                 resultat += ligne;
             }
-            resultat = "La commande " + commande + " a été exécutée avec le resultat suivant: \r\n" + resultat;
+            resultat = "La commande " + commande + " a été exécutée avec le résultat suivant: \r\n" + resultat;
         } catch (IOException e) {
             resultat = "La commande " + commande + " n'a pas pu être exécutée à cause de " + e.toString() + RENVOYER;
         }

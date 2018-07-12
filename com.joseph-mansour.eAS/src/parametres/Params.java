@@ -47,18 +47,18 @@ public class Params {
 
     //Libelle de l'ID qui va être ajoute au sujet 
     public final static String LIBELLE_ID = " - ID: ";
-    public final static String A_MODERER = "A moderer";
-    public final static String MODERE = "Modere";
+    public final static String A_MODERER = "A modérer";
+    public final static String MODERE = "Modéré";
 
-    public final static String EXECUTE = "Execute";
+    public final static String EXECUTE = "Exécuté";
 
-    public final static String A_EXECUTER = "A executer";
+    public final static String A_EXECUTER = "A exécuter";
 
     public final static String CONTENU_MAL_CONSTRUIT = "Contenu mal construit";
-    public final static String CONTENU_MAL_CONSTRUIT_DESC = "Le contenu de votre courriel doit etre de format texte brut, sans pieces jointes et contenir exactement un seul mot ";
+    public final static String CONTENU_MAL_CONSTRUIT_DESC = "Le contenu de votre courriel doit ètre de format texte brut, sans pièces jointes et contenir exactement un seul mot ";
 
     public final static String COMMANDE_NON_PERMISE = "Commande non permise";
-    public final static String COMMANDE_NON_PERMISE_DESC = " ne fait pas partie de la liste des commandes permises (affichee ci-dessous)  :\r\n";
+    public final static String COMMANDE_NON_PERMISE_DESC = " ne fait pas partie de la liste des commandes permises (affichée ci-dessous)  :\r\n";
 
     public final static String RENVOYER = "\r\n" + String.format("%44s", "Renvoyer le courriel");
     public final static String PAS_RENVOYER = "\r\n" + String.format("%60s", "Pas de besoin de renvoyer le courriel");

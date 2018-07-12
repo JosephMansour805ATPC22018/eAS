@@ -114,14 +114,14 @@ public final class ValiderCourriels {
                 lireDossier(store);
 
             } catch (MessagingException ex) {
-                BoiteNoire.enregistrerErreur("La connexion au serveur courriel a echoue à cause de " + ex.getMessage() + PAS_RENVOYER);
+                BoiteNoire.enregistrerErreur("La connexion au serveur courriel a échoué à cause de " + ex.getMessage() + PAS_RENVOYER);
             }
 
         } finally {
 
             if (store.isConnected()) {
                 store.close();
-                BoiteNoire.enregistrerJournal("La connexion au serveur courriel est proprement terminee ");
+                BoiteNoire.enregistrerJournal("La connexion au serveur courriel est proprement terminée ");
             }
         }
     }
