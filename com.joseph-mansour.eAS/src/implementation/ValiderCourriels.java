@@ -74,10 +74,10 @@ public final class ValiderCourriels {
      * construit
      */
     public ValiderCourriels(ServeurCourriel serveurCourriel) throws NoSuchProviderException, ParseException, IOException, FileNotFoundException, MessagingException {
-        
-        if (serveurCourriel !=null) connecterServeurCourriel(serveurCourriel.getNomServeur(), serveurCourriel.getProtocole(), Integer.parseInt(serveurCourriel.getPort()), serveurCourriel.getIdentifiant(), serveurCourriel.getMotDePasse());
-        
-        
+
+        if (serveurCourriel != null) {
+            connecterServeurCourriel(serveurCourriel.getNomServeur(), serveurCourriel.getProtocole(), Integer.parseInt(serveurCourriel.getPort()), serveurCourriel.getIdentifiant(), serveurCourriel.getMotDePasse());
+        }
 
     }
 
@@ -230,6 +230,7 @@ public final class ValiderCourriels {
             String numMessage = Integer.toString(msg.getMessageNumber());
             String[] infoSuppl = infoSupplCourriel.get(numMessage).split(SEPARATEUR);
             TraiterCourriel traiterCourriel;
+            msg.setFlag(Flags.Flag.ANSWERED, true);
             switch (infoSuppl[0]) {
                 case CONTENU_MAL_CONSTRUIT:
                     traiterCourriel = new TraiterCourriel(infoSuppl[1]);
@@ -254,14 +255,16 @@ public final class ValiderCourriels {
                     traiterCourriel = new TraiterCourriel(msg, courriel);
                     break;
             }
-            msg.setFlag(Flags.Flag.ANSWERED, true);
+
+        }
+        if (msgs.length > 0) {
             BoiteNoire.enregistrerJournal("Tous les courriels valides sont marqués ANSWERED");
         }
     }
 
     /**
      *
-     * @return le nombre de fichiers couriel déjà existents      *
+     * @return le nombre de fichiers couriel déjà existents *
      */
     private static int nbFichiersCourriel() {
 

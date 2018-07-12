@@ -45,6 +45,7 @@ import static parametres.Params.LIBELLE_ID;
 import static parametres.Params.CONTENU_MAL_CONSTRUIT;
 import static parametres.Params.CONTENU_MAL_CONSTRUIT_DESC;
 import static parametres.Params.MODERE;
+import static parametres.Params.RENVOYER;
 import static parametres.Params.SHELL;
 
 /**
@@ -190,9 +191,9 @@ public class TraiterCourriel {
             while ((ligne = input.readLine()) != null) {
                 resultat += ligne;
             }
-            resultat = "La commande " + commande + " a ete executee avec le resultat suivant: \r\n" + resultat;
+            resultat = "La commande " + commande + " a été exécutée avec le resultat suivant: \r\n" + resultat;
         } catch (IOException e) {
-            resultat = e.toString();
+            resultat = "La commande " + commande + " n'a pas pu être exécutée à cause de " + e.toString() + RENVOYER;
         }
         BoiteNoire.enregistrerJournal(resultat);
         return (resultat);
@@ -232,7 +233,7 @@ public class TraiterCourriel {
             transport.connect(sc.getSmtp(), sc.getIdentifiant(), sc.getMotDePasse());
             transport.sendMessage(message, message.getAllRecipients());
         } catch (MessagingException ex) {
-            BoiteNoire.enregistrerErreur("Un message n'a pas pu être envoyé à cause de: " + ex.getMessage());
+            BoiteNoire.enregistrerErreur("Un message n'a pas pu être envoyé à cause de: " + ex.getMessage()+RENVOYER);
         }
 
     }
