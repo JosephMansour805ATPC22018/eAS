@@ -35,3 +35,19 @@ spec:
     targetPort: 80
   selector:
     app: nginx-ingress
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: whoami-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/affinity: "cookie"
+    nginx.ingress.kubernetes.io/session-cookie-name: "route"
+    nginx.ingress.kubernetes.io/session-cookie-hash: "sha1"
+spec:
+  rules:
+  - host: my.kubernetes.example
+    http:
+      - backend:
+          serviceName: whoami-svc
+          servicePort: 80
