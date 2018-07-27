@@ -19,7 +19,7 @@ Installation
   
 Exécution:
  - java -jar com.joseph-mansour.eAS.jar param1 param2
-    param1: le reportoire de travail (e.g. /eAS_rep)
-    param2: le dossier du serveur courriel (par défaut Inbox)
+  - param1: le reportoire de travail (e.g. /eAS_rep
+  - param2: le dossier du serveur courriel (par défaut Inbox)
  - Pour ordonnancer l'exécution vous pouvez utiliser crontab/Unix ou taskschd.msc/Windows
  - Tous les détails/erreurs des exécutuons sont enregistrés dans le fichiers eAS_execution.log et eAS_erreur.log
