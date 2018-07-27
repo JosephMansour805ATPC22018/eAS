@@ -13,9 +13,9 @@ Installation
 - Créer un repertoire de travail sur le serveur dédié exclusivement à eAS (e.g. /eAS_rep)
 - Télécharger le repertoire com.joseph-mansour.eAS/dist sur /eAS_rep
 - Modifier les fichiers JSON serveurcourriel.json, commandespermises.json et envoyeursagrees.json en fonction de votre environnement
-  serveurcourriel.json contient les paramètres du serveur courriel 
-  commandespermises.json contient les commandes permises à exécuter
-  envoyeursagrees.json contient l'addresses courriel des administrateurs agrées et de leurs modérateurs (s'il y en a)
+   serveurcourriel.json contient les paramètres du serveur courriel 
+   commandespermises.json contient les commandes permises à exécuter
+   envoyeursagrees.json contient l'addresses courriel des administrateurs agrées et de leurs modérateurs (s'il y en a)
   
 Exécution:
  - java -jar com.joseph-mansour.eAS.jar param1 param2
