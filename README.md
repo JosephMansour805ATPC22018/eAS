@@ -1,5 +1,4 @@
-# eAS
-Administrer un système d'exploitation via courriel
+# eAS - Administrer un système d'exploitation via courriel
 
 eAS est un outil qui permet à l’administrateur du système d’exploitation, au cas où l’accès physique et à distance au serveur n’est pas possible, d’effectuer les tâches d’administration sans qu’il n’y ait aucun impact sur le fonctionnement des applications hébergées sur le serveur.
 eAS utilise le service courriel pour transférer les commandes à exécuter vers le serveur. Le fichier flux_des_taches.JPG détaille le fonctionnement du l'outil.
@@ -17,6 +16,11 @@ Installation
    - commandespermises.json contient les commandes permises à exécuter
    - envoyeursagrees.json contient l'addresses courriel des administrateurs agrées et de leurs modérateurs (s'il y en a)
   
+Exigences du courriel à envoyer:
+- Envoyé par un envoyeur agrée
+- Le format du contenu doit être texte brut
+- Le contenu est un et un seul mot (i.e. le code de la commande à exécuter)
+
 Exécution:
  - java -jar com.joseph-mansour.eAS.jar param1 param2
     - param1: le reportoire de travail (e.g. /eAS_rep
