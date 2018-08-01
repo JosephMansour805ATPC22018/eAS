@@ -127,7 +127,7 @@ public class ValiderCourriels {
 
             if (store.isConnected()) {
                 store.close();
-                BoiteNoire.enregistrerJournal(registre().get("connexion_terminee"));
+               // BoiteNoire.enregistrerJournal(registre().get("connexion_terminee"));
             }
         }
     }
@@ -146,7 +146,7 @@ public class ValiderCourriels {
     void lireBoiteReception(Store store, String boiteReception) throws MessagingException, FileNotFoundException, IOException {
         Folder folder = store.getFolder(boiteReception);
         folder.open(Folder.READ_WRITE);
-        BoiteNoire.enregistrerJournal(registre().get("connexion_etablie") + folder.toString() + registre().get("ouverte"));
+        //BoiteNoire.enregistrerJournal(registre().get("connexion_etablie") + folder.toString() + registre().get("ouverte"));
         int nb = nbFichiersCourriel();
         final String SEPARATEUR = "::";
         //Construire la liste des envoyeurs agres
@@ -230,7 +230,9 @@ public class ValiderCourriels {
 
         //Iterer à travers le folder des courriels valides
         Message[] msgs = folder.search(searchTerm);
+        if (msgs.length>0) {
         BoiteNoire.enregistrerJournal(registre().get("nb_courriels_valides") + msgs.length);
+        }
         for (Message msg : msgs) {
             String idCourriel;
             String numMessage = Integer.toString(msg.getMessageNumber());
