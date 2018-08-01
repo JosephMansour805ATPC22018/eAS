@@ -11,10 +11,10 @@ Les prérequis sont:
 Installation
 - Créer un repertoire de travail sur le serveur dédié exclusivement à eAS (e.g. /eAS_rep)
 - Télécharger le repertoire com.joseph-mansour.eAS/dist sur /eAS_rep
-- Modifier les fichiers JSON serveurcourriel.json, commandespermises.json et envoyeursagrees.json en fonction de votre environnement
+- Modifier les fichiers JSON serveurcourriel.json, commandespermises.json, envoyeursagrees.json et registre.json en fonction de votre environnement
    - serveurcourriel.json contient les paramètres du serveur courriel 
    - commandespermises.json contient les commandes permises à exécuter
-   - envoyeursagrees.json contient l'addresse courriel des administrateurs agrées et de leurs modérateurs (s'il y en a)
+   - envoyeursagrees.json contient l'adresse courriel des administrateurs agrées et de leurs modérateurs (s'il y en a)
    - registre.json contient une liste de clef-valeur 
   
 Exigences du courriel à envoyer:
