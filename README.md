@@ -15,6 +15,7 @@ Installation
    - serveurcourriel.json contient les paramètres du serveur courriel 
    - commandespermises.json contient les commandes permises à exécuter
    - envoyeursagrees.json contient l'addresse courriel des administrateurs agrées et de leurs modérateurs (s'il y en a)
+   - registre.json contient une liste de clef-valeur 
   
 Exigences du courriel à envoyer:
 - Envoyé par un envoyeur agrée
