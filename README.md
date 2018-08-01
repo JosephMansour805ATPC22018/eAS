@@ -23,8 +23,7 @@ Exigences du courriel à envoyer:
 - Le contenu est un et un seul mot (i.e. le code de la commande à exécuter)
 
 Exécution:
- - java -jar com.joseph-mansour.eAS.jar param1 param2
+ - java -jar com.joseph-mansour.eAS.jar param1 
     - param1: le reportoire de travail (e.g. /eAS_rep)
-    - param2: le dossier mailbox  (par défaut Inbox)
  - Pour ordonnancer l'exécution vous pouvez utiliser crontab/Unix ou taskschd.msc/Windows
  - Tous les détails/erreurs des exécutuons sont enregistrés dans les fichiers eAS_execution.log et eAS_erreur.log
