@@ -19,21 +19,27 @@ package entites;
 
 /**
  * Contient les paramêtres du serveur courriel
+ *
  * @author Joseph Mansour
  */
 public class ServeurCourriel {
 
-    private  String nomServeur;
-    private  String protocole;
-    private  String port;
-    private  String identifiant;
-    private  String motDePasse;
+    private String nomServeur;
+    private String protocole;
+    private String port;
+    private String identifiant;
+    private String motDePasse;
     private String smtp;
     private String smtpPort;
-    private String addresseCourriel;
+    private String adresseCourriel;
+    private String boiteReception;
 
-    public String getAddresseCourriel() {
-        return addresseCourriel;
+    public String getBoiteReception() {
+        return boiteReception;
+    }
+
+    public String getAdresseCourriel() {
+        return adresseCourriel;
     }
 
     public String getSmtp() {
@@ -43,9 +49,6 @@ public class ServeurCourriel {
     public String getSmtpPort() {
         return smtpPort;
     }
-
-   
-  
 
     public String getNomServeur() {
         return nomServeur;

@@ -29,6 +29,8 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.util.HashMap;
 import java.util.Properties;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.mail.Address;
 import javax.mail.Flags;
 import javax.mail.Folder;
@@ -42,13 +44,10 @@ import javax.mail.search.SearchTerm;
 import parametres.Params;
 import static parametres.Params.A_EXECUTER;
 import static parametres.Params.A_MODERER;
-import static parametres.Params.LIBELLE_ID;
+import static parametres.Params.COMMANDE_NON_PERMISE;
 import static parametres.Params.CONTENU_MAL_CONSTRUIT;
 import static parametres.Params.MODERE;
-import static parametres.Params.PAS_RENVOYER;
-import static parametres.Params.COMMANDE_NON_PERMISE;
-import static parametres.Params.DOSSIER_COURRIELS;
-import static parametres.Params.PREFIX_ID;
+import static parametres.Params.registre;
 
 /**
  * Identifier les courriels valides (i.e. envoyés par les envoyeurs agrées) et
@@ -57,7 +56,14 @@ import static parametres.Params.PREFIX_ID;
  *
  * @author Joseph Mansour
  */
-public final class ValiderCourriels {
+public class ValiderCourriels {
+
+    String PREFIX_ID = registre().get("prefix");
+    String LIBELLE_ID = registre().get("libelle_id");
+    String EXECUTE = registre().get("execute");
+    String RENVOYER = "\r\n" + registre().get("renvoyer");
+    String PAS_RENVOYER = "\r\n" + registre().get("pas_renvoyer");
+    String CONTENU_MAL_CONSTRUIT_DESC = registre().get("contenu_mal_construit_desc");
 
     /**
      * Etablir une connection avec le serveur courriel
@@ -76,7 +82,7 @@ public final class ValiderCourriels {
     public ValiderCourriels(ServeurCourriel serveurCourriel) throws NoSuchProviderException, ParseException, IOException, FileNotFoundException, MessagingException {
 
         if (serveurCourriel != null) {
-            connecterServeurCourriel(serveurCourriel.getNomServeur(), serveurCourriel.getProtocole(), Integer.parseInt(serveurCourriel.getPort()), serveurCourriel.getIdentifiant(), serveurCourriel.getMotDePasse());
+            connecterServeurCourriel(serveurCourriel.getNomServeur(), serveurCourriel.getProtocole(), Integer.parseInt(serveurCourriel.getPort()), serveurCourriel.getIdentifiant(), serveurCourriel.getMotDePasse(), serveurCourriel.getBoiteReception());
         }
 
     }
@@ -84,18 +90,18 @@ public final class ValiderCourriels {
     /**
      * Se connecter au serveur courriel
      *
-     * @param nomserveur
+     * @param nomServeur
      * @param protocole
      * @param port
      * @param identifiant
-     * @param motdepasse
+     * @param motDePasse
      * @throws FileNotFoundException
      * @throws NoSuchProviderException
      * @throws ParseException
      * @throws IOException
      * @throws MessagingException
      */
-    void connecterServeurCourriel(String nomserveur, String protocole, int port, String identifiant, String motdepasse) throws FileNotFoundException, NoSuchProviderException, ParseException, IOException, MessagingException {
+    private void connecterServeurCourriel(String nomServeur, String protocole, int port, String identifiant, String motDePasse, String boiteReception) throws FileNotFoundException, NoSuchProviderException, ParseException, IOException, MessagingException {
         Store store = null;
 
         try {
@@ -110,18 +116,18 @@ public final class ValiderCourriels {
             store = session.getStore();
 
             try {
-                store.connect(nomserveur, port, identifiant, motdepasse);
-                lireDossier(store);
+                store.connect(nomServeur, port, identifiant, motDePasse);
+                lireBoiteReception(store, boiteReception);
 
             } catch (MessagingException ex) {
-                BoiteNoire.enregistrerErreur("La connexion au serveur courriel a échoué à cause de " + ex.getMessage() + PAS_RENVOYER);
+                BoiteNoire.enregistrerErreur(registre().get("connexion_echouee") + ex.getMessage() + PAS_RENVOYER);
             }
 
         } finally {
 
             if (store.isConnected()) {
                 store.close();
-                BoiteNoire.enregistrerJournal("La connexion au serveur courriel est proprement terminée ");
+                BoiteNoire.enregistrerJournal(registre().get("connexion_terminee"));
             }
         }
     }
@@ -137,11 +143,10 @@ public final class ValiderCourriels {
      * @throws IOException
      * @author Joseph Mansour
      */
-    void lireDossier(Store store) throws MessagingException, FileNotFoundException, IOException {
-
-        Folder dossier = store.getFolder(DOSSIER_COURRIELS);
-        dossier.open(Folder.READ_WRITE);
-        BoiteNoire.enregistrerJournal("La connexion au serveur courriel est établie et le dossier " + dossier.toString() + " est ouverte");
+    void lireBoiteReception(Store store, String boiteReception) throws MessagingException, FileNotFoundException, IOException {
+        Folder folder = store.getFolder(boiteReception);
+        folder.open(Folder.READ_WRITE);
+        BoiteNoire.enregistrerJournal(registre().get("connexion_etablie") + folder.toString() + registre().get("ouverte"));
         int nb = nbFichiersCourriel();
         final String SEPARATEUR = "::";
         //Construire la liste des envoyeurs agres
@@ -211,10 +216,11 @@ public final class ValiderCourriels {
                 } catch (MessagingException | IOException ex) {
 
                     try {
-                        BoiteNoire.enregistrerErreur("Un des courriels n'a pas pu être lu à cause de " + ex.getMessage() + PAS_RENVOYER);
+                        BoiteNoire.enregistrerErreur(registre().get("courriel_pas_lu") + ex.getMessage() + PAS_RENVOYER);
                     } catch (FileNotFoundException ex1) {
-
+                        Logger.getLogger(ValiderCourriels.class.getName()).log(Level.SEVERE, null, ex1);
                     }
+
                 }
 
                 return false;
@@ -222,9 +228,9 @@ public final class ValiderCourriels {
 
         };
 
-        //Iterer à travers le dossier des courriels valides
-        Message[] msgs = dossier.search(searchTerm);
-        BoiteNoire.enregistrerJournal("Nombre total de courriels valides est " + msgs.length);
+        //Iterer à travers le folder des courriels valides
+        Message[] msgs = folder.search(searchTerm);
+        BoiteNoire.enregistrerJournal(registre().get("nb_courriels_valides") + msgs.length);
         for (Message msg : msgs) {
             String idCourriel;
             String numMessage = Integer.toString(msg.getMessageNumber());
@@ -258,7 +264,7 @@ public final class ValiderCourriels {
 
         }
         if (msgs.length > 0) {
-            BoiteNoire.enregistrerJournal("Tous les courriels valides sont marqués ANSWERED");
+            BoiteNoire.enregistrerJournal(registre().get("courriels_answered"));
         }
     }
 
@@ -266,7 +272,7 @@ public final class ValiderCourriels {
      *
      * @return le nombre de fichiers couriel déjà existents *
      */
-    private static int nbFichiersCourriel() {
+    private int nbFichiersCourriel() {
 
         FilenameFilter filefilter = (File file, String filename) -> filename.toLowerCase().endsWith(".json") && filename.toLowerCase().startsWith(PREFIX_ID.toLowerCase());
         File[] fList = new File(Params.REP_TRAVAIL).listFiles(filefilter);

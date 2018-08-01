@@ -24,8 +24,8 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /**
- * Enregistrer les traces et les erreurs de l'exécution
- * Créer des fichier
+ * Enregistrer les traces et les erreurs de l'exécution Créer des fichier
+ *
  * @author Joseph Mansour
  */
 public class BoiteNoire {

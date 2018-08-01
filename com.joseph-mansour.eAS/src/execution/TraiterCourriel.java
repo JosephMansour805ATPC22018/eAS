@@ -39,28 +39,31 @@ import parametres.Params;
 import static parametres.Params.A_EXECUTER;
 import static parametres.Params.A_MODERER;
 import static parametres.Params.COMMANDE_NON_PERMISE;
-import static parametres.Params.COMMANDE_NON_PERMISE_DESC;
-import static parametres.Params.EXECUTE;
-import static parametres.Params.LIBELLE_ID;
 import static parametres.Params.CONTENU_MAL_CONSTRUIT;
-import static parametres.Params.CONTENU_MAL_CONSTRUIT_DESC;
-import static parametres.Params.MODERE;
-import static parametres.Params.RENVOYER;
 import static parametres.Params.SHELL;
+import static parametres.Params.EXECUTE;
+import static parametres.Params.MODERE;
+import static parametres.Params.registre;
 
 /**
- * Traiter les courriels valides selon leur catégorie. Il' y en a 5: A exécuter, A modérer, Modéré, Mal construit et Contenant une commande non permise
+ * Traiter les courriels valides selon leur catégorie. Il' y en a 5: A exécuter,
+ * A modérer, Modéré, Mal construit et Contenant une commande non permise
+ *
  * @author Joseph Mansour
  */
 public class TraiterCourriel {
 
-    String NOUVEAU_COURRIEL = "Un nouveau courriel est reçu, ID: ";
+    String NOUVEAU_COURRIEL = registre().get("nouveau_courriel");
+    String COMMANDE_NON_PERMISE_DESC = registre().get("commande_non_permise_desc") + "\r\n";
+    String LIBELLE_ID = registre().get("libelle_id");
+    String CONTENU_MAL_CONSTRUIT_DESC = registre().get("contenu_mal_construit_desc");
+    String RENVOYER = "\r\n" + registre().get("renvoyer");
 
     /**
      * Constructeur pour le courriel à modérer
      *
      * @param msg
-     * @param id de format  adresseEnvoyeur + "-" + sujet
+     * @param id de format adresseEnvoyeur + "-" + sujet
      * @param adresseModerateur addresse courriel du modérateur
      * @param clefCommande la clef de commande à exécuter
      * @param commande la commande à exécuter
@@ -79,7 +82,7 @@ public class TraiterCourriel {
         courriel.setStatut(A_MODERER);
         courriel.setSujetModereration(sujetID);
         BoiteNoire.enregistrerJournal(NOUVEAU_COURRIEL + id + ", statut: " + A_MODERER);
-        String contenu = adresseEnvoyeur + " voudrait executer la commande suivante. Pour en confirmer, repondre au courriel sans rien modifier, sinon ignorer ce courriel \r\n" + commande;
+        String contenu = adresseEnvoyeur + registre().get("demande_moderation") + commande;
         //creer le fichier json du courriel reçu
         BoiteNoire.creerFichier(new Gson().toJson(courriel), courriel.getId() + ".json");
         envoyerCourriel(adresseModerateur, sujetID, contenu);
@@ -93,7 +96,7 @@ public class TraiterCourriel {
      * @param idCourriel
      * @param clefCommande la clef de commande à exécuter
      * @param commande la commande à exécuter
-     * @throws MessagingException 
+     * @throws MessagingException
      * @throws IOException
      */
     public TraiterCourriel(Message msg, String idCourriel, String clefCommande, String commande) throws MessagingException, IOException {
@@ -156,8 +159,8 @@ public class TraiterCourriel {
      */
     public TraiterCourriel(String adresseEnvoyeur, String clefCommande, String listeDesCommandesPermises) throws MessagingException, FileNotFoundException {
 
-        BoiteNoire.enregistrerJournal("Un courriel, reçu de " + adresseEnvoyeur + ", contient une commande non permise ("+clefCommande+")" );
-        envoyerCourriel(adresseEnvoyeur, COMMANDE_NON_PERMISE, clefCommande+COMMANDE_NON_PERMISE_DESC+listeDesCommandesPermises);
+        BoiteNoire.enregistrerJournal(adresseEnvoyeur + registre().get("commande_pas_permise") + clefCommande + ")");
+        envoyerCourriel(adresseEnvoyeur, COMMANDE_NON_PERMISE, clefCommande + COMMANDE_NON_PERMISE_DESC + listeDesCommandesPermises);
     }
 
     /**
@@ -170,7 +173,7 @@ public class TraiterCourriel {
      */
     public TraiterCourriel(String adresseEnvoyeur) throws MessagingException, IOException {
         envoyerCourriel(adresseEnvoyeur, CONTENU_MAL_CONSTRUIT, CONTENU_MAL_CONSTRUIT_DESC);
-        BoiteNoire.enregistrerJournal("Un courriel mal construit est reçu de " + adresseEnvoyeur);
+        BoiteNoire.enregistrerJournal(registre().get("courriel_mal_construit") + adresseEnvoyeur);
     }
 
     /**
@@ -185,15 +188,15 @@ public class TraiterCourriel {
         try {
 
             Runtime rt = Runtime.getRuntime();
-            Process pr = rt.exec( SHELL + commande);
+            Process pr = rt.exec(SHELL + commande);
             BufferedReader input = new BufferedReader(new InputStreamReader(pr.getInputStream()));
             String ligne;
             while ((ligne = input.readLine()) != null) {
                 resultat += ligne;
             }
-            resultat = "La commande " + commande + " a été exécutée avec le résultat suivant: \r\n" + resultat;
+            resultat = registre().get("commande") + commande + registre().get("commande_executee") + resultat;
         } catch (IOException e) {
-            resultat = "La commande " + commande + " n'a pas pu être exécutée à cause de " + e.toString() + RENVOYER;
+            resultat = registre().get("commande") + commande + registre().get("commande_echouee") + e.toString() + RENVOYER;
         }
         BoiteNoire.enregistrerJournal(resultat);
         return (resultat);
@@ -228,12 +231,12 @@ public class TraiterCourriel {
             message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(adresseDestinataire));
             message.setSubject(sujet);
             message.setContent(contenu, "text/plain");
-            message.setFrom(sc.getAddresseCourriel());
+            message.setFrom(sc.getAdresseCourriel());
             Transport transport = session.getTransport("smtp");
             transport.connect(sc.getSmtp(), sc.getIdentifiant(), sc.getMotDePasse());
             transport.sendMessage(message, message.getAllRecipients());
         } catch (MessagingException ex) {
-            BoiteNoire.enregistrerErreur("Un message n'a pas pu être envoyé à cause de: " + ex.getMessage()+RENVOYER);
+            BoiteNoire.enregistrerErreur(registre().get("message_pas_envoye") + ex.getMessage() + RENVOYER);
         }
 
     }

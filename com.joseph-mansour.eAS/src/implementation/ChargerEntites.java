@@ -34,6 +34,7 @@ import java.util.HashMap;
 import java.util.List;
 import parametres.BoiteNoire;
 import parametres.Params;
+import static parametres.Params.registre;
 
 /**
  * Charger les infos des entites EnvoyeurAgree et CommandePermise a partir des fichiers json
@@ -41,7 +42,15 @@ import parametres.Params;
  * @author Joseph Mansour
  */
 public class ChargerEntites {
+        String PAS_LU; 
+        String MAL_CONSTRUIT;
 
+    public ChargerEntites() throws FileNotFoundException {
+        this.PAS_LU = registre().get("pas_lu");
+        this.MAL_CONSTRUIT=registre().get("mal_construit");
+    }
+  
+  
     //Lire les informations relatives aux Envoyeurs agres du fichier envoyeursAgrees.json
     HashMap<String, String> envoyeursAgrees() {
         List<EnvoyeurAgree> listeEnvoyeursAgrees = null;
@@ -58,12 +67,12 @@ public class ChargerEntites {
             }
         } catch (FileNotFoundException ex) {
             try {
-                BoiteNoire.enregistrerErreur("Fichier envoyeursagrees.json n'a pas pu êre lu à cause de: " + ex.getMessage());
+                BoiteNoire.enregistrerErreur("envoyeursagrees.json "+PAS_LU + ex.getMessage());
             } catch (FileNotFoundException ex1) {
             }
         } catch (JsonIOException | JsonSyntaxException | NumberFormatException e) {
             try {
-                BoiteNoire.enregistrerErreur("Fichier envoyeursagrees.json est mal construit à cause de: " + e.getMessage());
+                BoiteNoire.enregistrerErreur("envoyeursagrees.json "+ MAL_CONSTRUIT + e.getMessage());
             } catch (FileNotFoundException ex) {
             }
         }
@@ -86,12 +95,12 @@ public class ChargerEntites {
             }
         } catch (FileNotFoundException ex) {
             try {
-                BoiteNoire.enregistrerErreur("Fichier commandespermises.json n'a pas pu êre lu à cause de: " + ex.getMessage());
+                BoiteNoire.enregistrerErreur("commandespermises.json "+PAS_LU + ex.getMessage());
             } catch (FileNotFoundException ex1) {
             }
         } catch (JsonIOException | JsonSyntaxException | NumberFormatException e) {
             try {
-                BoiteNoire.enregistrerErreur("Fichier commandespermises.json est mal construit à cause de: " + e.getMessage());
+                BoiteNoire.enregistrerErreur("commandespermises.json " +MAL_CONSTRUIT+ e.getMessage());
             } catch (FileNotFoundException ex) {
             }
         }
@@ -110,13 +119,13 @@ public class ChargerEntites {
             courriel = gson.fromJson(reader, Courriel.class);
         } catch (FileNotFoundException ex) {
             try {
-                BoiteNoire.enregistrerErreur("Fichier " + id + ".json n'a pas pu être lu à cause de: " + ex.getMessage());
+                BoiteNoire.enregistrerErreur(id + ".json " +PAS_LU + ex.getMessage());
             } catch (FileNotFoundException ex1) {
                 return null;
             }
         } catch (JsonIOException | JsonSyntaxException | NumberFormatException e) {
             try {
-                BoiteNoire.enregistrerErreur("Fichier " + id + ".json est mal construit à cause de: " + e.getMessage());
+                BoiteNoire.enregistrerErreur(id + ".json "+MAL_CONSTRUIT + e.getMessage());
             } catch (FileNotFoundException ex) {
                 return null;
             }

@@ -21,54 +21,46 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonIOException;
 import com.google.gson.JsonSyntaxException;
+import com.google.gson.reflect.TypeToken;
+import entites.CommandePermise;
 import entites.ServeurCourriel;
+import entites.Registre;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.lang.reflect.Type;
+import java.util.HashMap;
+import java.util.List;
 
 /**
  * Définir les variables globales
+ *
  * @author Joseph Mansour
  */
 public class Params {
+
 
     //Le repertoire où touls les fichiers vont être crees
     public static String REP_TRAVAIL;
     public static String DOSSIER_COURRIELS;
     //Separateur de repertoires
     public final static String SEP_REP = System.getProperty("os.name").substring(0, 4).equalsIgnoreCase("wind") == false ? "/" : "\\";
-
     //Commande shell
     public final static String SHELL = System.getProperty("os.name").substring(0, 4).equalsIgnoreCase("wind") == false ? "" : "cmd /c ";
-
-    //Prefix des fichiers courriel
-    public final static String PREFIX_ID = "EAS-";
-
-    //Libelle de l'ID qui va être ajoute au sujet 
-    public final static String LIBELLE_ID = " - ID: ";
     public final static String A_MODERER = "A modérer";
     public final static String MODERE = "Modéré";
-
-    public final static String EXECUTE = "Exécuté";
-
-    public final static String A_EXECUTER = "A exécuter";
-
-    public final static String CONTENU_MAL_CONSTRUIT = "Contenu mal construit";
-    public final static String CONTENU_MAL_CONSTRUIT_DESC = "Le contenu de votre courriel doit ètre de format texte brut, sans pièces jointes et contenir exactement un seul mot ";
-
     public final static String COMMANDE_NON_PERMISE = "Commande non permise";
-    public final static String COMMANDE_NON_PERMISE_DESC = " ne fait pas partie de la liste des commandes permises (affichée ci-dessous)  :\r\n";
-
-    public final static String RENVOYER = "\r\n" + String.format("%44s", "Renvoyer le courriel");
-    public final static String PAS_RENVOYER = "\r\n" + String.format("%60s", "Pas de besoin de renvoyer le courriel");
-
+    public final static String CONTENU_MAL_CONSTRUIT = "Contenu mal construit";
+    public final static String A_EXECUTER = "A exécuter";
+    public final static String EXECUTE="Exécuté";
     /**
-     * Lire les informations relatives au Serveur courriel du fichier serveurCourriel.json
+     * Lire les informations relatives au Serveur courriel du fichier
+     * serveurCourriel.json
+     *
      * @return
      * @throws FileNotFoundException si le fichier n'existe pas
      */
-
     public final static ServeurCourriel serveurCourriel() throws FileNotFoundException {
         ServeurCourriel sc = null;
         BufferedReader reader = null;
@@ -78,13 +70,45 @@ public class Params {
             Gson gson = new GsonBuilder().create();
             sc = gson.fromJson(reader, ServeurCourriel.class);
         } catch (FileNotFoundException ex) {
-            BoiteNoire.enregistrerErreur("Fichier serveurcourriel.json n'a pas pu être lu à cause de: " + ex.getMessage());
+            BoiteNoire.enregistrerErreur("serveurcourriel.json n'a pas pu être lu à cause de: " + ex.getMessage());
             return null;
         } catch (JsonIOException | JsonSyntaxException | NumberFormatException e) {
-            BoiteNoire.enregistrerErreur("Fichier serveurcourriel.json est mal construit à cause de: " + e.getMessage());
+            BoiteNoire.enregistrerErreur("serveurcourriel.json est mal construit à cause de: " + e.getMessage());
             return null;
         }
         return sc;
     }
+    /**
+     * Charger la liste des clef-valeur du registre.json dans une HashMap
+     * @return
+     * @throws FileNotFoundException 
+     */
+        public final static HashMap<String, String> registre() throws FileNotFoundException {
+        List<Registre> listeClefs = null;
+        HashMap<String, String> registreMap = new HashMap<>();
+        BufferedReader reader = null;
+        File file = new File(Params.REP_TRAVAIL + "registre.json");
+        try {
+            reader = new BufferedReader(new FileReader(file));
+            Type listType = new TypeToken<List<CommandePermise>>() {
+            }.getType();
+            listeClefs = new Gson().fromJson(reader, listType);
+            for (Registre o : listeClefs) {
+                registreMap.put(o.getClef().toLowerCase(), o.getValeur());
+            }
+        } catch (FileNotFoundException ex) {
+
+            BoiteNoire.enregistrerErreur("registre.json n'a pas pu êre lu à cause de: " + ex.getMessage());
+
+        } catch (JsonIOException | JsonSyntaxException | NumberFormatException e) {
+
+            BoiteNoire.enregistrerErreur("registre.json est mal construit à cause de: " + e.getMessage());
+
+        }
+
+        return registreMap;
+
+    }
+
 
 }
