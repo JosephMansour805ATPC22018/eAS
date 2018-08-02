@@ -21,7 +21,7 @@ Installation
   - https://github.com/JosephMansour805ATPC22018/eAS/raw/master/com.joseph-mansour.eAS/dist/lib/gson-2.8.0.jar
   - https://github.com/JosephMansour805ATPC22018/eAS/raw/master/com.joseph-mansour.eAS/dist/lib/javax.mail-1.6.0.jar
   
-- Modifier les fichiers JSON serveurcourriel.json, commandespermises.json, envoyeursagrees.json et registre.json en fonction de votre environnement
+- Modifier les fichiers serveurcourriel.json, commandespermises.json, envoyeursagrees.json et registre.json en fonction de votre environnement
    - serveurcourriel.json contient les paramètres du serveur courriel 
    - commandespermises.json contient les commandes permises à exécuter
    - envoyeursagrees.json contient l'adresse courriel des administrateurs agrées et de leurs modérateurs (s'il y en a)
@@ -33,7 +33,6 @@ Exigences du courriel à envoyer:
 - Le contenu est un et un seul mot (i.e. le code de la commande à exécuter)
 
 Exécution:
- - java -jar com.joseph-mansour.eAS.jar param1 
-    - param1: le reportoire de travail (e.g. /eAS_rep)
+ - java -jar com.joseph-mansour.eAS.jar /eAS_rep 
  - Pour ordonnancer l'exécution vous pouvez utiliser crontab/Unix ou taskschd.msc/Windows
  - Tous les détails/erreurs des exécutuons sont enregistrés dans les fichiers eAS_execution.log et eAS_erreur.log
