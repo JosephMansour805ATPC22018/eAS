@@ -10,7 +10,17 @@ Les prérequis sont:
  
 Installation
 - Créer un repertoire de travail sur le serveur dédié exclusivement à eAS (e.g. /eAS_rep)
-- Télécharger le repertoire com.joseph-mansour.eAS/dist sur /eAS_rep
+- Télécharger les fichiers suivants sur /eAS_rep
+  - https://github.com/JosephMansour805ATPC22018/eAS/raw/master/com.joseph-mansour.eAS/dist/com.joseph-mansour.eAS.jar 
+  - https://raw.githubusercontent.com/JosephMansour805ATPC22018/eAS/master/com.joseph-mansour.eAS/dist/commandespermises.json
+  - https://raw.githubusercontent.com/JosephMansour805ATPC22018/eAS/master/com.joseph-mansour.eAS/dist/envoyeursagrees.json
+  - https://raw.githubusercontent.com/JosephMansour805ATPC22018/eAS/master/com.joseph-mansour.eAS/dist/registre.json
+  - https://raw.githubusercontent.com/JosephMansour805ATPC22018/eAS/master/com.joseph-mansour.eAS/dist/serveurcourriel.json
+
+- Télécharger les fichiers suivants sur /eAS_rep/lib
+  - https://github.com/JosephMansour805ATPC22018/eAS/raw/master/com.joseph-mansour.eAS/dist/lib/gson-2.8.0.jar
+  - https://github.com/JosephMansour805ATPC22018/eAS/raw/master/com.joseph-mansour.eAS/dist/lib/javax.mail-1.6.0.jar
+  
 - Modifier les fichiers JSON serveurcourriel.json, commandespermises.json, envoyeursagrees.json et registre.json en fonction de votre environnement
    - serveurcourriel.json contient les paramètres du serveur courriel 
    - commandespermises.json contient les commandes permises à exécuter
