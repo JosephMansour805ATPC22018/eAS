@@ -58,7 +58,7 @@ public class Params {
      * Lire les informations relatives au Serveur courriel du fichier
      * serveurCourriel.json
      *
-     * @return
+     * @return les specs du Serveur Courriel
      * @throws FileNotFoundException si le fichier n'existe pas
      */
     public final static ServeurCourriel serveurCourriel() throws FileNotFoundException {
@@ -80,7 +80,7 @@ public class Params {
     }
     /**
      * Charger la liste des clef-valeur du registre.json dans une HashMap
-     * @return
+     * @return registre format HashMap
      * @throws FileNotFoundException 
      */
         public final static HashMap<String, String> registre() throws FileNotFoundException {
@@ -90,7 +90,7 @@ public class Params {
         File file = new File(Params.REP_TRAVAIL + "registre.json");
         try {
             reader = new BufferedReader(new FileReader(file));
-            Type listType = new TypeToken<List<CommandePermise>>() {
+            Type listType = new TypeToken<List<Registre>>() {
             }.getType();
             listeClefs = new Gson().fromJson(reader, listType);
             for (Registre o : listeClefs) {

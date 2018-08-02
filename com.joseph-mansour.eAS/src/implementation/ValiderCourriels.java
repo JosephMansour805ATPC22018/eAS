@@ -95,6 +95,7 @@ public class ValiderCourriels {
      * @param port
      * @param identifiant
      * @param motDePasse
+     * @param boiteReception e.g. Inbox
      * @throws FileNotFoundException
      * @throws NoSuchProviderException
      * @throws ParseException
@@ -138,12 +139,15 @@ public class ValiderCourriels {
      * traitement
      *
      * @param store
+     * @param boiteReception
      * @throws MessagingException
      * @throws FileNotFoundException
      * @throws IOException
      * @author Joseph Mansour
      */
     void lireBoiteReception(Store store, String boiteReception) throws MessagingException, FileNotFoundException, IOException {
+        
+        if (boiteReception.isEmpty()||boiteReception==null) boiteReception="Inbox";
         Folder folder = store.getFolder(boiteReception);
         folder.open(Folder.READ_WRITE);
         //BoiteNoire.enregistrerJournal(registre().get("connexion_etablie") + folder.toString() + registre().get("ouverte"));

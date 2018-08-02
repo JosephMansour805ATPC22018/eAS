@@ -62,7 +62,7 @@ public class TraiterCourriel {
     /**
      * Constructeur pour le courriel à modérer
      *
-     * @param msg
+     * @param msg courriel reçu
      * @param id de format adresseEnvoyeur + "-" + sujet
      * @param adresseModerateur addresse courriel du modérateur
      * @param clefCommande la clef de commande à exécuter
@@ -93,7 +93,7 @@ public class TraiterCourriel {
      * Constructeur pour le courriel à exécuter
      *
      * @param msg courriel reçu a traiter
-     * @param idCourriel
+     * @param idCourriel identifiant du courriel
      * @param clefCommande la clef de commande à exécuter
      * @param commande la commande à exécuter
      * @throws MessagingException
@@ -179,8 +179,8 @@ public class TraiterCourriel {
     /**
      * Executer la commande
      *
-     * @param commande
-     * @return
+     * @param commande à exécuter
+     * @return resultat de l'exécution
      * @throws FileNotFoundException
      */
     private String executerCommande(String commande) throws FileNotFoundException {
