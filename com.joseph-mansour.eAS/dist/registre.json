@@ -7,7 +7,7 @@
 	{"clef":"connexion_echouee","valeur":"La connexion au serveur courriel a échoué à cause de "},
 	{"clef":"connexion_terminee","valeur":"La connexion au serveur courriel est proprement terminée "},
 	{"clef":"nouveau_courriel","valeur":"Un nouveau courriel est reçu, ID: "},
-	{"clef":"demande_moderation","valeur":" voudrait exécuter la commande suivante. Pour confirmer, répondez au courriel sans rien modifier, sinon ignorez le courriel \r\n"},
+	{"clef":"demande_moderation","valeur":"(utilisateur de Système d'Exploitation: ___) voudrait exécuter la commande suivante. Pour confirmer, répondez au courriel sans rien modifier, sinon ignorez le courriel \r\n"},
 	{"clef":"commande_pas_permise","valeur":" a envoyé un courriel qui contient une commande pas permise ("},
 	{"clef":"courriel_mal_construit","valeur":"Un courriel mal construit est reçu de "},
 	{"clef":"commande","valeur":"La commande "},
@@ -16,11 +16,11 @@
 	{"clef":"message_pas_envoye","valeur":"Un message n'a pas pu être envoyé à cause de: "},
 	{"clef":"pas_lu","valeur":"n'a pas pu êre lu à cause de: "},
 	{"clef":"mal_construit","valeur":"est mal construit à cause de: "},
-	{"clef":"prefix_id","valeur":"EAS-"},
+	{"clef":"prefix","valeur":"EAS-"},
 	{"clef":"libelle_id","valeur":" - ID: "},
 	{"clef":"execute","valeur":"Exécuté"},
 	{"clef":"contenu_mal_construit_desc","valeur":"Le contenu de votre courriel doit ètre de format texte brut, sans pièces jointes et contenir exactement un seul mot "},
-	{"clef":"commande_non_permise_desc","valeur":" ne fait pas partie de la liste des commandes permises (affichée ci-dessous)  :"},
+	{"clef":"commande_non_permise_desc","valeur":" ne fait pas partie de la liste des commandes permises."},
 	{"clef":"renvoyer","valeur":"                       Renvoyer le courriel"},
 	{"clef":"pas_renvoyer","valeur":"                       Pas de besoin de renvoyer le courriel"}
 ]
