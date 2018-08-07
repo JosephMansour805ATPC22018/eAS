@@ -1,6 +1,6 @@
 # eAS - Administrer un système d'exploitation via courriel
 
-eAS est un outil qui permet à l’administrateur de système d’exploitation, au cas où l’accès physique et à distance au serveur n’est pas possible, d’effectuer les tâches d’administration sans qu’il n’y ait aucun impact sur le fonctionnement des applications hébergées sur le serveur.
+eAS est un outil qui permet à l’administrateur de système d’exploitation (AS) , au cas où l’accès physique et à distance au serveur n’est pas possible, d’effectuer les tâches d’administration sans qu’il n’y ait aucun impact sur le fonctionnement des applications hébergées sur le serveur.
 eAS utilise le service courriel pour transférer les commandes à exécuter vers le serveur. Le fichier flux_des_taches.JPG détaille le fonctionnement du l'outil.
 
 Les prérequis sont:
@@ -21,15 +21,15 @@ Installation
   - https://github.com/JosephMansour805ATPC22018/eAS/raw/master/com.joseph-mansour.eAS/dist/lib/gson-2.8.0.jar
   - https://github.com/JosephMansour805ATPC22018/eAS/raw/master/com.joseph-mansour.eAS/dist/lib/javax.mail-1.6.0.jar
   
-- Modifier les fichiers serveurcourriel.json, commandespermises.json, envoyeursagrees.json et registre.json en fonction de votre environnement
+- Modifier les fichiers serveurcourriel.json, commandespermises.json, administrateurssysteme.json et registre.json en fonction de votre environnement
    - serveurcourriel.json contient les paramètres du serveur courriel 
    - commandespermises.json contient les commandes permises à exécuter
-   - envoyeursagrees.json contient l'adresse courriel des administrateurs agrées et de leurs modérateurs (s'il y en a)
+   - administrateurssysteme.json contient l'adresse courriel, le sujet et l'utilisateur du système d'exploitation des AS agrées et, si c'est applicable, l'adresse courriel de leurs modérateurs
    - registre.json contient une liste de clef-valeur 
   
 Exigences du courriel à envoyer:
-- Envoyé par un envoyeur agrée
-- Le format du contenu doit être texte brut
+- Envoyé par un AS agrée
+- Le format du contenu doit être de type texte brut
 - Le contenu est un et un seul mot (i.e. le code de la commande à exécuter)
 
 Exécution:
