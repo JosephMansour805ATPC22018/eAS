@@ -195,7 +195,7 @@ public class ValiderCourriels {
                                     infoSupplCourriel.put(numMessage, A_EXECUTER + SEPARATEUR + clefCommande + SEPARATEUR + commande + SEPARATEUR + utilisateurSE);
 
                                 } else {
-                                    infoSupplCourriel.put(numMessage, A_MODERER + SEPARATEUR + adminssysMap.get(adminsysID) + SEPARATEUR + clefCommande + SEPARATEUR + commande + SEPARATEUR + utilisateurSE);
+                                    infoSupplCourriel.put(numMessage, A_MODERER + SEPARATEUR + adminssysMap.get(adminsysID).getAdresseCourrielModerateur() + SEPARATEUR + clefCommande + SEPARATEUR + commande + SEPARATEUR + utilisateurSE);
                                 }
 
                             } else {
