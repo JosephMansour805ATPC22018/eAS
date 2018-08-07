@@ -13,7 +13,7 @@ Installation
 - Télécharger les fichiers suivants sur /eAS_rep
   - https://github.com/JosephMansour805ATPC22018/eAS/raw/master/com.joseph-mansour.eAS/dist/com.joseph-mansour.eAS.jar 
   - https://raw.githubusercontent.com/JosephMansour805ATPC22018/eAS/master/com.joseph-mansour.eAS/dist/commandespermises.json
-  - https://raw.githubusercontent.com/JosephMansour805ATPC22018/eAS/master/com.joseph-mansour.eAS/dist/envoyeursagrees.json
+  - https://raw.githubusercontent.com/JosephMansour805ATPC22018/eAS/master/com.joseph-mansour.eAS/dist/administrateurssysteme.json
   - https://raw.githubusercontent.com/JosephMansour805ATPC22018/eAS/master/com.joseph-mansour.eAS/dist/registre.json
   - https://raw.githubusercontent.com/JosephMansour805ATPC22018/eAS/master/com.joseph-mansour.eAS/dist/serveurcourriel.json
 
