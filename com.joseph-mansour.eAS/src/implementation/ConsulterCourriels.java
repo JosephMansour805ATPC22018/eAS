@@ -22,10 +22,8 @@ import java.io.IOException;
 import java.text.ParseException;
 import javax.mail.MessagingException;
 import javax.mail.NoSuchProviderException;
-import parametres.Params;
 import static parametres.Params.REP_TRAVAIL;
-import static parametres.Params.SEP_REP;
-import static parametres.Params.DOSSIER_COURRIELS;
+import static parametres.Params.SYSTEME_EXPLOITATION;
 import static parametres.Params.serveurCourriel;
 
 /**
@@ -38,11 +36,18 @@ public class ConsulterCourriels {
 
     public static void main(String[] args) throws NoSuchProviderException, ParseException, IOException, FileNotFoundException, MessagingException {
 
+        //Separateur de repertoires
+        String SEP_REP = SYSTEME_EXPLOITATION.equals("unix") ? "/" : "\\";
+        
         //Assigner une valeur au repertoire du travail
         REP_TRAVAIL = args.length < 1 ? "." + SEP_REP : args[0].substring(args[0].length()-1,args[0].length()).equals(SEP_REP) ? args[0]:args[0]+SEP_REP;
 
                
         //Se connecter au serveur courriel pour valider les courriels
          new ValiderCourriels(serveurCourriel());
+       
+        
+        
+
     }
 }

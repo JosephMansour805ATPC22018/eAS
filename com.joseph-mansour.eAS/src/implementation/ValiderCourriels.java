@@ -18,6 +18,7 @@
 package implementation;
 
 import com.google.gson.GsonBuilder;
+import entites.AdministrateurSysteme;
 import entites.Courriel;
 import entites.ServeurCourriel;
 import execution.TraiterCourriel;
@@ -128,7 +129,7 @@ public class ValiderCourriels {
 
             if (store.isConnected()) {
                 store.close();
-               // BoiteNoire.enregistrerJournal(registre().get("connexion_terminee"));
+                // BoiteNoire.enregistrerJournal(registre().get("connexion_terminee"));
             }
         }
     }
@@ -146,15 +147,17 @@ public class ValiderCourriels {
      * @author Joseph Mansour
      */
     void lireBoiteReception(Store store, String boiteReception) throws MessagingException, FileNotFoundException, IOException {
-        
-        if (boiteReception.isEmpty()||boiteReception==null) boiteReception="Inbox";
+
+        if (boiteReception.isEmpty() || boiteReception == null) {
+            boiteReception = "Inbox";
+        }
         Folder folder = store.getFolder(boiteReception);
         folder.open(Folder.READ_WRITE);
         //BoiteNoire.enregistrerJournal(registre().get("connexion_etablie") + folder.toString() + registre().get("ouverte"));
         int nb = nbFichiersCourriel();
         final String SEPARATEUR = "::";
         //Construire la liste des envoyeurs agres
-        final HashMap<String, String> easMap = new ChargerEntites().envoyeursAgrees();
+        final HashMap<String, AdministrateurSysteme> adminssysMap = new ChargerEntites().administrateursSysteme();
         final HashMap<String, String> commandespermisesMap = new ChargerEntites().commandesPermises();
         HashMap<String, String> infoSupplCourriel = new HashMap<>();
         //Construire le filtre des courriels à consulter
@@ -162,7 +165,7 @@ public class ValiderCourriels {
 
             @Override
             public boolean match(Message message) {
-                Boolean envoyeurAgree = false;
+                Boolean administrateurSysteme = false;
                 Boolean courrielModere = false;
                 Boolean contenuValide;
                 try {
@@ -175,21 +178,24 @@ public class ValiderCourriels {
                     Address[] froms = message.getFrom();
                     String envoyeur = ((InternetAddress) froms[0]).getAddress();
                     String sujet = message.getSubject();
-                    String eaID = (envoyeur + "-" + sujet).toLowerCase();
+                    String adminsysID = (envoyeur + "-" + sujet).toLowerCase();
                     String numMessage = Integer.toString(message.getMessageNumber());
-                    if (envoyeurAgree = easMap.containsKey(eaID)) {
-                        String clefCommande = message.getContent().toString().trim().toLowerCase();
+                    String utilisateurSE;
+                    String clefCommande;
+                    // Vérifier si l'envoyeur est un administrateur de systême agrée
+                    if (administrateurSysteme = adminssysMap.containsKey(adminsysID)) {
+                        utilisateurSE = adminssysMap.get(adminsysID).getUtilisateurSE();
+                        clefCommande = message.getContent().toString().trim().toLowerCase();
                         //Verifier si le contenu du courriel contient un seul mot de mode texte brut
                         contenuValide = message.isMimeType("text/plain") && !clefCommande.contains(" ") && !clefCommande.contains(System.getProperty("line.separator")) && !clefCommande.isEmpty();
                         if (contenuValide) {
                             if (commandespermisesMap.containsKey(clefCommande)) {
                                 String commande = commandespermisesMap.get(clefCommande);
-
-                                if (easMap.get(eaID).isEmpty() || easMap.get(eaID) == null) {
-                                    infoSupplCourriel.put(numMessage, A_EXECUTER + SEPARATEUR + clefCommande + SEPARATEUR + commande);
+                                if (adminssysMap.get(adminsysID).getAdresseCourrielModerateur().isEmpty() || adminssysMap.get(adminsysID).getAdresseCourrielModerateur() == null) {
+                                    infoSupplCourriel.put(numMessage, A_EXECUTER + SEPARATEUR + clefCommande + SEPARATEUR + commande + SEPARATEUR + utilisateurSE);
 
                                 } else {
-                                    infoSupplCourriel.put(numMessage, A_MODERER + SEPARATEUR + easMap.get(eaID) + SEPARATEUR + clefCommande + SEPARATEUR + commande);
+                                    infoSupplCourriel.put(numMessage, A_MODERER + SEPARATEUR + adminssysMap.get(adminsysID) + SEPARATEUR + clefCommande + SEPARATEUR + commande + SEPARATEUR + utilisateurSE);
                                 }
 
                             } else {
@@ -234,8 +240,8 @@ public class ValiderCourriels {
 
         //Iterer à travers le folder des courriels valides
         Message[] msgs = folder.search(searchTerm);
-        if (msgs.length>0) {
-        BoiteNoire.enregistrerJournal(registre().get("nb_courriels_valides") + msgs.length);
+        if (msgs.length > 0) {
+            BoiteNoire.enregistrerJournal(registre().get("nb_courriels_valides") + msgs.length);
         }
         for (Message msg : msgs) {
             String idCourriel;
@@ -253,13 +259,13 @@ public class ValiderCourriels {
                 case A_MODERER:
                     nb += 1;
                     idCourriel = PREFIX_ID + nb;
-                    traiterCourriel = new TraiterCourriel(msg, idCourriel, infoSuppl[1], infoSuppl[2], infoSuppl[3]);
+                    traiterCourriel = new TraiterCourriel(msg, idCourriel, infoSuppl[1], infoSuppl[2], infoSuppl[3], infoSuppl[4]);
                     break;
 
                 case A_EXECUTER:
                     nb += 1;
                     idCourriel = PREFIX_ID + nb;
-                    traiterCourriel = new TraiterCourriel(msg, idCourriel, infoSuppl[1], infoSuppl[2]);
+                    traiterCourriel = new TraiterCourriel(msg, idCourriel, infoSuppl[1], infoSuppl[2], infoSuppl[3]);
                     break;
 
                 case MODERE:

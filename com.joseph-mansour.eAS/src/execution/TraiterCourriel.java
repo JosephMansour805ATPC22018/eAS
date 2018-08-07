@@ -40,9 +40,9 @@ import static parametres.Params.A_EXECUTER;
 import static parametres.Params.A_MODERER;
 import static parametres.Params.COMMANDE_NON_PERMISE;
 import static parametres.Params.CONTENU_MAL_CONSTRUIT;
-import static parametres.Params.SHELL;
 import static parametres.Params.EXECUTE;
 import static parametres.Params.MODERE;
+import static parametres.Params.SYSTEME_EXPLOITATION;
 import static parametres.Params.registre;
 
 /**
@@ -70,19 +70,19 @@ public class TraiterCourriel {
      * @throws MessagingException si le message ne pouvait pas être envoyé
      * @throws IOException si le fichier ne pouvait pas être créé
      */
-    public TraiterCourriel(Message msg, String id, String adresseModerateur, String clefCommande, String commande) throws MessagingException, IOException {
+    public TraiterCourriel(Message msg, String id, String adresseModerateur, String clefCommande, String commande, String utilisateurSE) throws MessagingException, IOException {
         String adresseEnvoyeur = ((InternetAddress) msg.getFrom()[0]).getAddress();
         String adresseDestinataire = ((InternetAddress) msg.getAllRecipients()[0]).getAddress();
         Date dateEnvoyer = msg.getReceivedDate();
         String sujet = msg.getSubject();
         String sujetID = sujet + LIBELLE_ID + id;
-        Courriel courriel = new Courriel.CourrielBuilder(id, adresseEnvoyeur, adresseDestinataire, sujet, dateEnvoyer, clefCommande).build();
+        Courriel courriel = new Courriel.CourrielBuilder(id, adresseEnvoyeur, utilisateurSE, adresseDestinataire, sujet, dateEnvoyer, clefCommande).build();
         courriel.setRemarque(commande);
         courriel.setAdresseModerateur(adresseModerateur);
         courriel.setStatut(A_MODERER);
         courriel.setSujetModereration(sujetID);
         BoiteNoire.enregistrerJournal(NOUVEAU_COURRIEL + id + ", statut: " + A_MODERER);
-        String contenu = adresseEnvoyeur + registre().get("demande_moderation") + commande;
+        String contenu = adresseEnvoyeur + registre().get("demande_moderation").replace("@1", utilisateurSE) + commande;
         //creer le fichier json du courriel reçu
         BoiteNoire.creerFichier(new Gson().toJson(courriel), courriel.getId() + ".json");
         envoyerCourriel(adresseModerateur, sujetID, contenu);
@@ -99,15 +99,15 @@ public class TraiterCourriel {
      * @throws MessagingException
      * @throws IOException
      */
-    public TraiterCourriel(Message msg, String idCourriel, String clefCommande, String commande) throws MessagingException, IOException {
+    public TraiterCourriel(Message msg, String idCourriel, String clefCommande, String commande, String utilisateurSE) throws MessagingException, IOException {
         String adresseEnvoyeur = ((InternetAddress) msg.getFrom()[0]).getAddress();
         String adresseDestinataire = ((InternetAddress) msg.getAllRecipients()[0]).getAddress();
         Date dateEnvoyer = msg.getReceivedDate();
         String sujet = msg.getSubject();
-        Courriel courriel = new Courriel.CourrielBuilder(idCourriel, adresseEnvoyeur, adresseDestinataire, sujet, dateEnvoyer, clefCommande + ":" + commande).build();
+        Courriel courriel = new Courriel.CourrielBuilder(idCourriel, adresseEnvoyeur, utilisateurSE, adresseDestinataire, sujet, dateEnvoyer, clefCommande + ":" + commande).build();
         courriel.setStatut(A_EXECUTER);
         BoiteNoire.enregistrerJournal(NOUVEAU_COURRIEL + idCourriel + ", statut: " + A_EXECUTER);
-        String resultat = executerCommande(commande);
+        String resultat = executerCommande(commande, courriel.getUtilisateurSE());
         courriel.setStatut(EXECUTE);
         courriel.setDateExecution(new Date());
         courriel.setRemarque(resultat);
@@ -131,7 +131,7 @@ public class TraiterCourriel {
     public TraiterCourriel(Message msg, Courriel courriel) throws MessagingException, IOException {
         String adresseEnvoyeur = courriel.getAdresseEnvoyeur() + "," + courriel.getAdresseModerateur();
         BoiteNoire.enregistrerJournal(NOUVEAU_COURRIEL + courriel.getId() + ", statut: " + MODERE);
-        String resultat = executerCommande(courriel.getRemarque());
+        String resultat = executerCommande(courriel.getRemarque(), courriel.getUtilisateurSE());
         courriel.setStatut(courriel.getStatut() + ", " + EXECUTE);
         courriel.setDateModeration(msg.getReceivedDate());
         courriel.setDateExecution(new Date());
@@ -160,7 +160,7 @@ public class TraiterCourriel {
     public TraiterCourriel(String adresseEnvoyeur, String clefCommande, String listeDesCommandesPermises) throws MessagingException, FileNotFoundException {
 
         BoiteNoire.enregistrerJournal(adresseEnvoyeur + registre().get("commande_pas_permise") + clefCommande + ")");
-        envoyerCourriel(adresseEnvoyeur, COMMANDE_NON_PERMISE, clefCommande + COMMANDE_NON_PERMISE_DESC + listeDesCommandesPermises);
+        envoyerCourriel(adresseEnvoyeur, COMMANDE_NON_PERMISE, clefCommande + COMMANDE_NON_PERMISE_DESC);
     }
 
     /**
@@ -183,20 +183,32 @@ public class TraiterCourriel {
      * @return resultat de l'exécution
      * @throws FileNotFoundException
      */
-    private String executerCommande(String commande) throws FileNotFoundException {
+    private String executerCommande(String commande, String utilisateurSE) throws FileNotFoundException {
+
+        //Commande shell
+        String SHELL = SYSTEME_EXPLOITATION == "unix" ? "" : "cmd /c ";
+
+        //Le propriétaire d'outil eAS
+        String EXECUTE_PAR = System.getProperty("user.name");
+
         String resultat = "";
+
+        String utilisateur_SE = utilisateurSE == null ? EXECUTE_PAR : utilisateurSE;
+
+        //commande pour exécuter la commande par l'utilsateur SE
+        String SU = SYSTEME_EXPLOITATION == "unix" ? "sudo su - " + utilisateurSE + " -c " : "";
         try {
 
             Runtime rt = Runtime.getRuntime();
-            Process pr = rt.exec(SHELL + commande);
+            Process pr = rt.exec(SHELL + SU + commande);
             BufferedReader input = new BufferedReader(new InputStreamReader(pr.getInputStream()));
             String ligne;
             while ((ligne = input.readLine()) != null) {
                 resultat += ligne;
             }
-            resultat = registre().get("commande") + commande + registre().get("commande_executee") + resultat;
+            resultat = registre().get("commande_executee").replace("@1", commande).replace("@2", utilisateur_SE) + resultat;
         } catch (IOException e) {
-            resultat = registre().get("commande") + commande + registre().get("commande_echouee") + e.toString() + RENVOYER;
+            resultat = registre().get("commande_echouee").replace("@1", commande).replace("@2", utilisateur_SE) + e.toString() + RENVOYER;
         }
         BoiteNoire.enregistrerJournal(resultat);
         return (resultat);

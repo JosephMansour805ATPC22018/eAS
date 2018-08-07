@@ -22,7 +22,6 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonIOException;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
-import entites.CommandePermise;
 import entites.ServeurCourriel;
 import entites.Registre;
 import java.io.BufferedReader;
@@ -40,20 +39,22 @@ import java.util.List;
  */
 public class Params {
 
-
     //Le repertoire où touls les fichiers vont être crees
     public static String REP_TRAVAIL;
     public static String DOSSIER_COURRIELS;
-    //Separateur de repertoires
-    public final static String SEP_REP = System.getProperty("os.name").substring(0, 4).equalsIgnoreCase("wind") == false ? "/" : "\\";
-    //Commande shell
-    public final static String SHELL = System.getProperty("os.name").substring(0, 4).equalsIgnoreCase("wind") == false ? "" : "cmd /c ";
+    //windows ou unix
+    public final static String SYSTEME_EXPLOITATION = System.getProperty("os.name").substring(0, 4).equalsIgnoreCase("wind") == false ? "unix" : "windows";
+
+    //Verifier si l'utilsateur SE existe seulement si le SE est unix
+    public final static boolean VERIFIER_UTILISATEUR_SE = SYSTEME_EXPLOITATION == "unix";
+
     public final static String A_MODERER = "A modérer";
     public final static String MODERE = "Modéré";
     public final static String COMMANDE_NON_PERMISE = "Commande non permise";
     public final static String CONTENU_MAL_CONSTRUIT = "Contenu mal construit";
     public final static String A_EXECUTER = "A exécuter";
-    public final static String EXECUTE="Exécuté";
+    public final static String EXECUTE = "Exécuté";
+
     /**
      * Lire les informations relatives au Serveur courriel du fichier
      * serveurCourriel.json
@@ -78,12 +79,14 @@ public class Params {
         }
         return sc;
     }
+
     /**
      * Charger la liste des clef-valeur du registre.json dans une HashMap
+     *
      * @return registre format HashMap
-     * @throws FileNotFoundException 
+     * @throws FileNotFoundException
      */
-        public final static HashMap<String, String> registre() throws FileNotFoundException {
+    public final static HashMap<String, String> registre() throws FileNotFoundException {
         List<Registre> listeClefs = null;
         HashMap<String, String> registreMap = new HashMap<>();
         BufferedReader reader = null;
@@ -109,6 +112,5 @@ public class Params {
         return registreMap;
 
     }
-
 
 }

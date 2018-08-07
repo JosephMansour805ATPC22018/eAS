@@ -22,6 +22,7 @@ import java.util.Date;
 
 /**
  * Contient tous les attributs d'un courriel valide
+ *
  * @author Joseph MAnsour
  */
 public class Courriel {
@@ -30,6 +31,7 @@ public class Courriel {
     private final String adresseEnvoyeur;
     private final String adresseDestinataire;
     private final String sujet;
+    private final String utilisateurSE;
     private final Date dateEnvoyer;
     private final String contenu;
     private String statut;
@@ -39,11 +41,11 @@ public class Courriel {
     private Date dateExecution;
     private String remarque;
 
-
     private Courriel(CourrielBuilder cb) {
 
         id = cb.id;
         adresseEnvoyeur = cb.adresseEnvoyeur;
+        utilisateurSE = cb.utilisateurSE;
         adresseDestinataire = cb.adresseDestinataire;
         sujet = cb.sujet;
         dateEnvoyer = cb.dateEnvoyer;
@@ -125,6 +127,10 @@ public class Courriel {
         this.dateExecution = dateExecution;
     }
 
+    public String getUtilisateurSE() {
+        return utilisateurSE;
+    }
+
     public void setRemarque(String remarque) {
         this.remarque = remarque;
     }
@@ -140,7 +146,7 @@ public class Courriel {
         return new Gson().toJson(this);
 
     }
-    
+
     //Classe de CourrielBuilder
     public static class CourrielBuilder {
 
@@ -156,14 +162,16 @@ public class Courriel {
         private String sujetModereration;
         private Date dateExecution;
         private String remarque;
+        private String utilisateurSE;
 
-        public CourrielBuilder(String id, String adresseEnvoyeur, String adresseDestinataire, String sujet, Date dateEnvoyer, String contenu) {
+        public CourrielBuilder(String id, String adresseEnvoyeur, String utilisateurSE, String adresseDestinataire, String sujet, Date dateEnvoyer, String contenu) {
             this.id = id;
             this.adresseEnvoyeur = adresseEnvoyeur;
             this.adresseDestinataire = adresseDestinataire;
             this.sujet = sujet;
             this.dateEnvoyer = dateEnvoyer;
             this.contenu = contenu;
+            this.utilisateurSE=utilisateurSE;
         }
 
         public CourrielBuilder statut(String statut) {
@@ -193,6 +201,11 @@ public class Courriel {
 
         public CourrielBuilder remarque(String remarque) {
             this.remarque = remarque;
+            return this;
+        }
+
+        public CourrielBuilder utilisateurSE(String utilisateurSE) {
+            this.utilisateurSE = utilisateurSE;
             return this;
         }
 
