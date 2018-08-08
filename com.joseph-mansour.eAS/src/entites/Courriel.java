@@ -41,6 +41,10 @@ public class Courriel {
     private Date dateExecution;
     private String remarque;
 
+    /**
+     * 
+     * @param cb 
+     */
     private Courriel(CourrielBuilder cb) {
 
         id = cb.id;
@@ -141,13 +145,13 @@ public class Courriel {
      */
     @Override
     public String toString() {
-
-        //Les infos du Client formattees avec JSON
         return new Gson().toJson(this);
-
     }
 
-    //Classe de CourrielBuilder
+    
+    /**
+     * Builder qui construit la classe Courriel
+     */
     public static class CourrielBuilder {
 
         private String id;
@@ -171,7 +175,7 @@ public class Courriel {
             this.sujet = sujet;
             this.dateEnvoyer = dateEnvoyer;
             this.contenu = contenu;
-            this.utilisateurSE=utilisateurSE;
+            this.utilisateurSE = utilisateurSE;
         }
 
         public CourrielBuilder statut(String statut) {

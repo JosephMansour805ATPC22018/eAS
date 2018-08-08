@@ -39,15 +39,12 @@ import java.util.List;
  */
 public class Params {
 
-    //Le repertoire où touls les fichiers vont être crees
+    //Le repertoire où touls les fichiers vont être crées
     public static String REP_TRAVAIL;
-    public static String DOSSIER_COURRIELS;
+
     //windows ou unix
     public final static String SYSTEME_EXPLOITATION = System.getProperty("os.name").substring(0, 4).equalsIgnoreCase("wind") == false ? "unix" : "windows";
-
-    //Verifier si l'utilsateur SE existe seulement si le SE est unix
-    public final static boolean VERIFIER_UTILISATEUR_SE = SYSTEME_EXPLOITATION == "unix";
-
+    
     public final static String A_MODERER = "A modérer";
     public final static String MODERE = "Modéré";
     public final static String COMMANDE_NON_PERMISE = "Commande non permise";
@@ -100,13 +97,10 @@ public class Params {
                 registreMap.put(o.getClef().toLowerCase(), o.getValeur());
             }
         } catch (FileNotFoundException ex) {
-
             BoiteNoire.enregistrerErreur("registre.json n'a pas pu êre lu à cause de: " + ex.getMessage());
 
         } catch (JsonIOException | JsonSyntaxException | NumberFormatException e) {
-
             BoiteNoire.enregistrerErreur("registre.json est mal construit à cause de: " + e.getMessage());
-
         }
 
         return registreMap;

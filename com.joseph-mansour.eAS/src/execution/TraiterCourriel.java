@@ -83,8 +83,10 @@ public class TraiterCourriel {
         courriel.setSujetModereration(sujetID);
         BoiteNoire.enregistrerJournal(NOUVEAU_COURRIEL + id + ", statut: " + A_MODERER);
         String contenu = adresseEnvoyeur + registre().get("demande_moderation").replace("@1", utilisateurSE) + commande;
+        
         //creer le fichier json du courriel reçu
         BoiteNoire.creerFichier(new Gson().toJson(courriel), courriel.getId() + ".json");
+        
         envoyerCourriel(adresseModerateur, sujetID, contenu);
 
     }
@@ -136,7 +138,7 @@ public class TraiterCourriel {
         courriel.setDateModeration(msg.getReceivedDate());
         courriel.setDateExecution(new Date());
         courriel.setRemarque(resultat);
-        String sujetExe = LIBELLE_ID + courriel.getId() + " " + EXECUTE;
+        String sujetExe = msg.getSubject().replace(registre().get("re_sujet"), "") +" " + EXECUTE;
 
         //Modifier le fichier json du courriel modéré
         BoiteNoire.creerFichier(new Gson().toJson(courriel), courriel.getId() + ".json");
@@ -195,7 +197,7 @@ public class TraiterCourriel {
 
         String utilisateur_SE = utilisateurSE == null ? EXECUTE_PAR : utilisateurSE;
 
-        //commande pour exécuter la commande par l'utilsateur SE
+        //exécuter la commande en tant que utilsateurSE
         String SU = SYSTEME_EXPLOITATION == "unix" ? "sudo su - " + utilisateurSE + " -c " : "";
         try {
 

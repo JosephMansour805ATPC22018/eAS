@@ -36,7 +36,7 @@ import java.util.HashMap;
 import java.util.List;
 import parametres.BoiteNoire;
 import parametres.Params;
-import static parametres.Params.VERIFIER_UTILISATEUR_SE;
+import static parametres.Params.SYSTEME_EXPLOITATION;
 import static parametres.Params.registre;
 
 /**
@@ -69,7 +69,7 @@ public class ChargerEntites {
         File file = new File(Params.REP_TRAVAIL + "administrateurssysteme.json");
         boolean adminsysIDPasNul;
         boolean agree;
-
+        boolean VERIFIER_UTILISATEUR_SE = SYSTEME_EXPLOITATION == "unix";
         try {
             reader = new BufferedReader(new FileReader(file));
             Type listType = new TypeToken<List<AdministrateurSysteme>>() {
@@ -83,34 +83,38 @@ public class ChargerEntites {
                 }
             }
         } catch (FileNotFoundException ex) {
-            try {
-                BoiteNoire.enregistrerErreur("administrateurssysteme.json " + PAS_LU + ex.getMessage());
-            } catch (FileNotFoundException ex1) {
-            }
+            BoiteNoire.enregistrerErreur("administrateurssysteme.json " + PAS_LU + ex.getMessage());
+
         } catch (JsonIOException | JsonSyntaxException | NumberFormatException | java.lang.NullPointerException e) {
-            try {
-                BoiteNoire.enregistrerErreur("administrateurssysteme.json " + MAL_CONSTRUIT + e.getMessage());
-            } catch (FileNotFoundException ex) {
-            }
+            BoiteNoire.enregistrerErreur("administrateurssysteme.json " + MAL_CONSTRUIT + e.getMessage());
+
         }
         return adminsysMap;
     }
 
-    private boolean existeUtilsateurSE(String utilisateurSE) throws  IOException {
+    /**
+     *
+     * @param utilisateurSE associé à l'administrateur système
+     * @return si existe ou pas
+     * @throws IOException
+     */
+    private boolean existeUtilsateurSE(String utilisateurSE) throws IOException {
 
         Runtime rt = Runtime.getRuntime();
         Process pr = rt.exec("sudo su - " + utilisateurSE + " -c env");
         BufferedReader input = new BufferedReader(new InputStreamReader(pr.getInputStream()));
-        long nblignes=input.lines().count() ;
+        long nblignes = input.lines().count();
         return nblignes > 0;
 
     }
+
     /**
      * @return liste HashMap des commeandes permises à partir du fichier
      * commandespermises.json Les lignes où idCommande et Commande ne sont pas
      * définis sont ignorées
+     * @throws java.io.FileNotFoundException
      */
-    public HashMap<String, String> commandesPermises() {
+    public HashMap<String, String> commandesPermises() throws FileNotFoundException {
         List<CommandePermise> listeCommandesPermises = null;
         HashMap<String, String> cpsMap = new HashMap<>();
         BufferedReader reader = null;
@@ -126,24 +130,25 @@ public class ChargerEntites {
                 }
             }
         } catch (FileNotFoundException ex) {
-            try {
-                BoiteNoire.enregistrerErreur("commandespermises.json " + PAS_LU + ex.getMessage());
-            } catch (FileNotFoundException ex1) {
-            }
+            BoiteNoire.enregistrerErreur("commandespermises.json " + PAS_LU + ex.getMessage());
+
         } catch (JsonIOException | JsonSyntaxException | NumberFormatException | java.lang.NullPointerException e) {
-            try {
-                BoiteNoire.enregistrerErreur("commandespermises.json " + MAL_CONSTRUIT + e.getMessage());
-            } catch (FileNotFoundException ex) {
-            }
+            BoiteNoire.enregistrerErreur("commandespermises.json " + MAL_CONSTRUIT + e.getMessage());
+
         }
 
         return cpsMap;
     }
 
-    
-
-    //Lire les informations relatives aux courriels pas encore moderes du fichier courriels.json
-    Courriel trouverCourriel(String id, String statut) {
+    /**
+     * Trouver le fichier .json qui correspond à un courriel spécifique
+     *
+     * @param id
+     * @param statut A modérer
+     * @return les informations relatives au courriel trouvé
+     * @throws FileNotFoundException
+     */
+    Courriel trouverCourriel(String id, String statut) throws FileNotFoundException {
         Courriel courriel = null;
         BufferedReader reader = null;
         File file = new File(Params.REP_TRAVAIL + id + ".json");
@@ -152,19 +157,12 @@ public class ChargerEntites {
             Gson gson = new GsonBuilder().create();
             courriel = gson.fromJson(reader, Courriel.class);
         } catch (FileNotFoundException ex) {
-            try {
-                BoiteNoire.enregistrerErreur(id + ".json " + PAS_LU + ex.getMessage());
-            } catch (FileNotFoundException ex1) {
-                return null;
-            }
+            BoiteNoire.enregistrerErreur(id + ".json " + PAS_LU + ex.getMessage());
+
         } catch (JsonIOException | JsonSyntaxException | NumberFormatException e) {
-            try {
-                BoiteNoire.enregistrerErreur(id + ".json " + MAL_CONSTRUIT + e.getMessage());
-            } catch (FileNotFoundException ex) {
-                return null;
-            }
+            BoiteNoire.enregistrerErreur(id + ".json " + MAL_CONSTRUIT + e.getMessage());
+
         }
-        System.out.print("line 123 :");
         if (courriel == null || !courriel.getStatut().equalsIgnoreCase(statut)) {
             return null;
         } else {

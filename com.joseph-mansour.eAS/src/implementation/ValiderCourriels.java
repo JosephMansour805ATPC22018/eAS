@@ -30,8 +30,6 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.util.HashMap;
 import java.util.Properties;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.mail.Address;
 import javax.mail.Flags;
 import javax.mail.Folder;
@@ -126,10 +124,8 @@ public class ValiderCourriels {
             }
 
         } finally {
-
             if (store.isConnected()) {
                 store.close();
-                // BoiteNoire.enregistrerJournal(registre().get("connexion_terminee"));
             }
         }
     }
@@ -153,13 +149,14 @@ public class ValiderCourriels {
         }
         Folder folder = store.getFolder(boiteReception);
         folder.open(Folder.READ_WRITE);
-        //BoiteNoire.enregistrerJournal(registre().get("connexion_etablie") + folder.toString() + registre().get("ouverte"));
         int nb = nbFichiersCourriel();
         final String SEPARATEUR = "::";
+
         //Construire la liste des envoyeurs agres
         final HashMap<String, AdministrateurSysteme> adminssysMap = new ChargerEntites().administrateursSysteme();
         final HashMap<String, String> commandespermisesMap = new ChargerEntites().commandesPermises();
         HashMap<String, String> infoSupplCourriel = new HashMap<>();
+
         //Construire le filtre des courriels à consulter
         SearchTerm searchTerm = new SearchTerm() {
 
@@ -224,13 +221,11 @@ public class ValiderCourriels {
                     }
 
                 } catch (MessagingException | IOException ex) {
-
                     try {
                         BoiteNoire.enregistrerErreur(registre().get("courriel_pas_lu") + ex.getMessage() + PAS_RENVOYER);
                     } catch (FileNotFoundException ex1) {
-                        Logger.getLogger(ValiderCourriels.class.getName()).log(Level.SEVERE, null, ex1);
+                        System.out.println(ex1.getMessage());
                     }
-
                 }
 
                 return false;
