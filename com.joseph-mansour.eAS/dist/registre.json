@@ -22,5 +22,6 @@
 	{"clef":"contenu_mal_construit_desc","valeur":"Le contenu de votre courriel doit ètre de format texte brut, sans pièces jointes et contenir exactement un seul mot "},
 	{"clef":"commande_non_permise_desc","valeur":" ne fait pas partie de la liste des commandes permises."},
 	{"clef":"renvoyer","valeur":"                       Renvoyer le courriel"},
-	{"clef":"pas_renvoyer","valeur":"                       Pas de besoin de renvoyer le courriel"}
+	{"clef":"pas_renvoyer","valeur":"                       Pas de besoin de renvoyer le courriel"},
+	{"clef":"re_sujet","valeur":"Re: "}
 ]
