@@ -33,6 +33,6 @@ Exigences du courriel à envoyer:
 - Le contenu est un et un seul mot (i.e. le code de la commande à exécuter)
 
 Exécution:
- - java -jar com.joseph-mansour.eAS.jar /eAS_rep 
+ - java -jar com.joseph-mansour.eAS.jar /eAS_rep
  - Pour ordonnancer l'exécution vous pouvez utiliser crontab/Unix ou taskschd.msc/Windows
  - Tous les détails/erreurs des exécutuons sont enregistrés dans les fichiers eAS_execution.log et eAS_erreur.log
