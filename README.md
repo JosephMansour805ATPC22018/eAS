@@ -9,7 +9,7 @@ Les prérequis sont:
 - Permettre au serveur de communiquer avec un serveur courriel (e.g. smtp.gmail.com, imap.gmail.com)
  
 Installation
-- Créer un repertoire de travail sur le serveur dédié exclusivement à eAS (e.g. /eAS_rep)
+- Créer sur le serveur un repertoire de travail  dédié exclusivement à eAS (e.g. /eAS_rep)
 - Télécharger les fichiers suivants sur /eAS_rep
   - https://github.com/JosephMansour805ATPC22018/eAS/raw/master/com.joseph-mansour.eAS/dist/com.joseph-mansour.eAS.jar 
   - https://raw.githubusercontent.com/JosephMansour805ATPC22018/eAS/master/com.joseph-mansour.eAS/dist/commandespermises.json
