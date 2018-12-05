@@ -20,6 +20,7 @@ Installation
 - Télécharger les fichiers suivants sur /eAS_rep/lib
   - https://github.com/JosephMansour805ATPC22018/eAS/raw/master/com.joseph-mansour.eAS/dist/lib/gson-2.8.0.jar
   - https://github.com/JosephMansour805ATPC22018/eAS/raw/master/com.joseph-mansour.eAS/dist/lib/javax.mail-1.6.0.jar
+  - https://github.com/JosephMansour805ATPC22018/eAS/blob/master/com.joseph-mansour.eAS/dist/lib/jsoup-1.11.3.jar
   
 - Modifier les fichiers serveurcourriel.json, commandespermises.json, administrateurssysteme.json et registre.json en fonction de votre environnement
    - serveurcourriel.json contient les paramètres du serveur courriel 
