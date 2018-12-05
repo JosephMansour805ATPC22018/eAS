@@ -40,6 +40,8 @@ import javax.mail.Session;
 import javax.mail.Store;
 import javax.mail.internet.InternetAddress;
 import javax.mail.search.SearchTerm;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
 import parametres.Params;
 import static parametres.Params.A_EXECUTER;
 import static parametres.Params.A_MODERER;
@@ -105,18 +107,20 @@ public class ValiderCourriels {
         Store store = null;
 
         try {
+
             Properties prop = new Properties();
             prop.setProperty("mail.store.protocol", protocole);
             if (port == 993 || port == 995) {
                 prop.setProperty("mail." + protocole + ".socketFactory.class", "javax.net.ssl.SSLSocketFactory");
                 prop.setProperty("mail." + protocole + ".socketFactory.fallback", "false");
-            } else {
             }
             Session session = Session.getDefaultInstance(prop);
             store = session.getStore();
 
             try {
+
                 store.connect(nomServeur, port, identifiant, motDePasse);
+
                 lireBoiteReception(store, boiteReception);
 
             } catch (MessagingException ex) {
@@ -179,12 +183,15 @@ public class ValiderCourriels {
                     String numMessage = Integer.toString(message.getMessageNumber());
                     String utilisateurSE;
                     String clefCommande;
+                    Document contenu;
                     // Vérifier si l'envoyeur est un administrateur de systême agrée
                     if (administrateurSysteme = adminssysMap.containsKey(adminsysID)) {
                         utilisateurSE = adminssysMap.get(adminsysID).getUtilisateurSE();
-                        clefCommande = message.getContent().toString().trim().toLowerCase();
-                        //Verifier si le contenu du courriel contient un seul mot de mode texte brut
-                        contenuValide = message.isMimeType("text/plain") && !clefCommande.contains(" ") && !clefCommande.contains(System.getProperty("line.separator")) && !clefCommande.isEmpty();
+                        contenu = Jsoup.parse((String) message.getContent());
+                        clefCommande = contenu.body().text().trim().toLowerCase();
+                    
+                        //Verifier si le contenu du courriel contient un seul mot
+                        contenuValide = !clefCommande.contains(" ") && !clefCommande.contains(System.getProperty("line.separator")) && !clefCommande.isEmpty();
                         if (contenuValide) {
                             if (commandespermisesMap.containsKey(clefCommande)) {
                                 String commande = commandespermisesMap.get(clefCommande);
