@@ -47,12 +47,12 @@ import static parametres.Params.registre;
  */
 public class ChargerEntites {
 
-    String PAS_LU;
-    String MAL_CONSTRUIT;
+    String NOT_READ;
+    String WRONG_FORMAT;
 
     public ChargerEntites() throws FileNotFoundException {
-        this.PAS_LU = registre().get("pas_lu");
-        this.MAL_CONSTRUIT = registre().get("mal_construit");
+        this.NOT_READ = registre().get("pas_lu");
+        this.WRONG_FORMAT = registre().get("mal_construit");
     }
 
     /**
@@ -83,10 +83,10 @@ public class ChargerEntites {
                 }
             }
         } catch (FileNotFoundException ex) {
-            BoiteNoire.enregistrerErreur("administrateurssysteme.json " + PAS_LU + ex.getMessage());
+            BoiteNoire.enregistrerErreur("administrateurssysteme.json " + NOT_READ + ex.getMessage());
 
         } catch (JsonIOException | JsonSyntaxException | NumberFormatException | java.lang.NullPointerException e) {
-            BoiteNoire.enregistrerErreur("administrateurssysteme.json " + MAL_CONSTRUIT + e.getMessage());
+            BoiteNoire.enregistrerErreur("administrateurssysteme.json " + WRONG_FORMAT + e.getMessage());
 
         }
         return adminsysMap;
@@ -130,10 +130,10 @@ public class ChargerEntites {
                 }
             }
         } catch (FileNotFoundException ex) {
-            BoiteNoire.enregistrerErreur("commandespermises.json " + PAS_LU + ex.getMessage());
+            BoiteNoire.enregistrerErreur("commandespermises.json " + NOT_READ + ex.getMessage());
 
         } catch (JsonIOException | JsonSyntaxException | NumberFormatException | java.lang.NullPointerException e) {
-            BoiteNoire.enregistrerErreur("commandespermises.json " + MAL_CONSTRUIT + e.getMessage());
+            BoiteNoire.enregistrerErreur("commandespermises.json " + WRONG_FORMAT + e.getMessage());
 
         }
 
@@ -157,10 +157,10 @@ public class ChargerEntites {
             Gson gson = new GsonBuilder().create();
             courriel = gson.fromJson(reader, Courriel.class);
         } catch (FileNotFoundException ex) {
-            BoiteNoire.enregistrerErreur(id + ".json " + PAS_LU + ex.getMessage());
+            BoiteNoire.enregistrerErreur(id + ".json " + NOT_READ + ex.getMessage());
 
         } catch (JsonIOException | JsonSyntaxException | NumberFormatException e) {
-            BoiteNoire.enregistrerErreur(id + ".json " + MAL_CONSTRUIT + e.getMessage());
+            BoiteNoire.enregistrerErreur(id + ".json " + WRONG_FORMAT + e.getMessage());
 
         }
         if (courriel == null || !courriel.getStatut().equalsIgnoreCase(statut)) {
