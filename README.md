@@ -29,7 +29,6 @@ Installation
   
 Exigences du courriel à envoyer:
 - Envoyé par un AS agrée
-- Le format du contenu doit être de type texte brut
 - Le contenu est un et un seul mot (i.e. le code de la commande à exécuter)
 
 Exécution:
