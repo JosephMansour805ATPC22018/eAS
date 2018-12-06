@@ -7,7 +7,7 @@
 	{"clef":"connexion_echouee","valeur":"La connexion au serveur courriel a échoué à cause de "},
 	{"clef":"connexion_terminee","valeur":"La connexion au serveur courriel est proprement terminée "},
 	{"clef":"nouveau_courriel","valeur":"Un nouveau courriel est reçu, ID: "},
-	{"clef":"demande_moderation","valeur":" voudrait exécuter la commande suivante par @1. Pour confirmer, répondez au courriel sans rien modifier, sinon ignorez le courriel \r\n"},
+	{"clef":"demande_moderation","valeur":" voudrait exécuter la commande suivante en tant que l'utilisateur @1. Pour confirmer, répondez au courriel sans rien modifier, sinon ignorez le courriel \r\n"},
 	{"clef":"commande_pas_permise","valeur":" a envoyé un courriel qui contient une commande pas permise ("},
 	{"clef":"courriel_mal_construit","valeur":"Un courriel mal construit est reçu de "},
 	{"clef":"commande","valeur":"La commande "},
